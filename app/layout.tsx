@@ -6,6 +6,7 @@ import { Analytics } from "@vercel/analytics/next"
 import { AuthSessionProvider } from "@/components/providers/session-provider"
 import GlobalLoader from "@/components/global-loader"
 import PageLoader from "@/components/page-loader"
+import WhatsAppWidget from "@/components/whatsapp-widget"
 import "./globals.css"
 
 const _geist = Geist({ subsets: ["latin"] })
@@ -37,6 +38,7 @@ export default function RootLayout({
         <PageLoader />
         <AuthSessionProvider>
           {children}
+          <WhatsAppWidget phoneNumber="918588855935" messageInterval={9000} />
           <Analytics />
         </AuthSessionProvider>
       </body>
