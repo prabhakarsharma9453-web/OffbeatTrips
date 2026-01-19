@@ -4,9 +4,26 @@ import { useState, useEffect, useRef } from "react"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import Link from "next/link"
-import { MapPin, DollarSign, Clock, Star, ArrowRight, Tent, Globe } from "lucide-react"
+import { MapPin, DollarSign, Clock, Star, Tent, Globe, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+
+type TripItem = {
+  id: string
+  slug: string
+  title: string
+  activity: string
+  location: string
+  country?: string
+  duration: string
+  price: string
+  rating: number
+  image: string
+  description?: string
+  difficulty?: string
+  groupSize?: string
+  type: "domestic" | "international"
+}
 
 const internationalCampingActivities = [
   {
@@ -161,19 +178,32 @@ const domesticCampingActivities = [
 export default function CampingActivitiesPage() {
   const [isVisible, setIsVisible] = useState(false)
   const [activeTab, setActiveTab] = useState<"all" | "international" | "domestic">("all")
+  const [dbTrips, setDbTrips] = useState<TripItem[]>([])
+  const [isTripsLoading, setIsTripsLoading] = useState(true)
   const sectionRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
     setIsVisible(true)
   }, [])
 
-  const allActivities = [...internationalCampingActivities, ...domesticCampingActivities]
-  const filteredActivities =
-    activeTab === "all"
-      ? allActivities
-      : activeTab === "international"
-        ? internationalCampingActivities
-        : domesticCampingActivities
+  useEffect(() => {
+    const load = async () => {
+      try {
+        setIsTripsLoading(true)
+        const res = await fetch("/api/trips?activity=camping")
+        const json = await res.json()
+        setDbTrips(json.success ? (json.data || []) : [])
+      } catch {
+        setDbTrips([])
+      } finally {
+        setIsTripsLoading(false)
+      }
+    }
+    load()
+  }, [])
+
+  const allActivities = dbTrips
+  const filteredActivities = activeTab === "all" ? allActivities : allActivities.filter((t) => t.type === activeTab)
 
   const ActivityCard = ({ activity }: { activity: (typeof allActivities)[0] }) => (
     <div className="group bg-card rounded-2xl overflow-hidden border border-border hover:border-primary/50 transition-all duration-500 hover:shadow-xl hover:shadow-primary/20">
@@ -220,12 +250,14 @@ export default function CampingActivitiesPage() {
               {activity.duration}
             </div>
           </div>
-          <Button
-            size="sm"
-            className="bg-primary hover:bg-primary/90 rounded-full px-4 py-1.5 text-xs transition-all duration-300 hover:scale-105"
-          >
-            Book Now
-          </Button>
+          <Link href="/#contact">
+            <Button
+              size="sm"
+              className="bg-primary hover:bg-primary/90 rounded-full px-4 py-1.5 text-xs transition-all duration-300 hover:scale-105"
+            >
+              Enquire
+            </Button>
+          </Link>
         </div>
       </div>
     </div>
@@ -268,12 +300,16 @@ export default function CampingActivitiesPage() {
           {/* Results Count */}
           <div className="mb-8 text-center">
             <p className="text-muted-foreground">
-              Found <span className="text-primary font-semibold">{filteredActivities.length}</span> camping activities
+              Found <span className="text-primary font-semibold">{filteredActivities.length}</span> camping trips
             </p>
           </div>
 
           {/* Activities Grid */}
-          {filteredActivities.length > 0 ? (
+          {isTripsLoading ? (
+            <div className="flex items-center justify-center py-16">
+              <Loader2 className="w-8 h-8 animate-spin text-primary" />
+            </div>
+          ) : filteredActivities.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {filteredActivities.map((activity, index) => (
                 <div
@@ -287,7 +323,7 @@ export default function CampingActivitiesPage() {
             </div>
           ) : (
             <div className="text-center py-16">
-              <p className="text-muted-foreground text-lg">No camping activities found.</p>
+              <p className="text-muted-foreground text-lg">No camping trips found. (Admin can add trips in Admin → Trips)</p>
             </div>
           )}
         </div>

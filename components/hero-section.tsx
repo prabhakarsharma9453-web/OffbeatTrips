@@ -118,8 +118,8 @@ export default function HeroSection() {
           {/* Left Column */}
           <div className="space-y-4 sm:space-y-6 lg:space-y-8">
             <div className={`space-y-3 sm:space-y-4 ${isVisible ? "animate-fade-in-left" : "opacity-0"}`}>
-              <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-tight text-balance">
-                Get Ready For Your <span className="text-primary">Lifetime Journey!</span>
+              <h1 className="font-serif text-2xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-tight text-balance">
+              Not Just Trips Unforgettable<span className="text-primary"> Offbeat Experiences!</span>
               </h1>
               <p className="text-base sm:text-lg text-white/70 max-w-md">
                 Explore attractions, tours and more with our curated adventure packages

@@ -7,6 +7,7 @@ import { AuthSessionProvider } from "@/components/providers/session-provider"
 import GlobalLoader from "@/components/global-loader"
 import PageLoader from "@/components/page-loader"
 import WhatsAppWidget from "@/components/whatsapp-widget"
+import { Toaster } from "@/components/ui/toaster"
 import "./globals.css"
 
 const _geist = Geist({ subsets: ["latin"] })
@@ -38,6 +39,7 @@ export default function RootLayout({
         <PageLoader />
         <AuthSessionProvider>
           {children}
+          <Toaster />
           <WhatsAppWidget phoneNumber="918588855935" messageInterval={9000} />
           <Analytics />
         </AuthSessionProvider>

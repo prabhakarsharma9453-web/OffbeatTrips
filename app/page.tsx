@@ -29,7 +29,10 @@ export default function Home() {
       <LocationsSection />
       <TestimonialsSection />
       <BlogSection />
-      {/* <ContactSection /> */}
+      {/* Desktop: Contact Section visible, Mobile: Hidden */}
+      <div className="hidden md:block">
+        <ContactSection />
+      </div>
       <Footer />
     </main>
   )

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
-import { Globe, MapPin, Star, Sparkles, ArrowRight } from "lucide-react"
+import { Globe, MapPin, Star, Sparkles, ArrowRight, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import {
@@ -13,101 +13,19 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel"
 
-const internationalResorts = [
-  {
-    id: 1,
-    title: "The Maldives Paradise Resort",
-    location: "Maldives",
-    price: "$899/night",
-    rating: 4.9,
-    image: "/thailand-beach-islands-tropical-paradise.jpg",
-    amenities: ["Private Villa", "Infinity Pool", "Spa", "Beach Access"],
-  },
-  {
-    id: 2,
-    title: "Swiss Alpine Luxury Lodge",
-    location: "Switzerland",
-    price: "$1,299/night",
-    rating: 4.8,
-    image: "/swiss-alps-mountains-snow-travel.jpg",
-    amenities: ["Mountain View", "Ski Access", "Fine Dining", "Spa"],
-  },
-  {
-    id: 3,
-    title: "Santorini Cliffside Resort",
-    location: "Greece",
-    price: "$799/night",
-    rating: 4.9,
-    image: "/coastal-hiking-beach-cliffs-adventure.jpg",
-    amenities: ["Sunset Views", "Infinity Pool", "Wine Cellar", "Private Beach"],
-  },
-  {
-    id: 4,
-    title: "Dubai Desert Oasis",
-    location: "UAE",
-    price: "$1,499/night",
-    rating: 4.8,
-    image: "/beautiful-waterfall-nature-hiking.jpg",
-    amenities: ["Desert Views", "Private Pool", "Butler Service", "Spa"],
-  },
-  {
-    id: 5,
-    title: "Bali Tropical Retreat",
-    location: "Indonesia",
-    price: "$699/night",
-    rating: 4.9,
-    image: "/kerala-backwaters-houseboat-beautiful-nature.jpg",
-    amenities: ["Villa Suite", "Private Beach", "Yoga Studio", "Spa"],
-  },
-]
-
-const domesticResorts = [
-  {
-    id: 6,
-    title: "Rajasthan Palace Heritage",
-    location: "Rajasthan, India",
-    price: "₹25,999/night",
-    rating: 4.9,
-    image: "/ladakh-mountains-pangong-lake-adventure.jpg",
-    amenities: ["Heritage Room", "Palace Tour", "Cultural Shows", "Spa"],
-  },
-  {
-    id: 7,
-    title: "Goa Beachfront Luxury",
-    location: "Goa, India",
-    price: "₹18,999/night",
-    rating: 4.8,
-    image: "/thailand-beach-islands-tropical-paradise.jpg",
-    amenities: ["Beach Villa", "Infinity Pool", "Water Sports", "Spa"],
-  },
-  {
-    id: 8,
-    title: "Himalayan Mountain Resort",
-    location: "Himachal Pradesh",
-    price: "₹22,999/night",
-    rating: 4.9,
-    image: "/manali-mountains-snow-adventure-himachal.jpg",
-    amenities: ["Mountain View", "Adventure Activities", "Wellness Center", "Fine Dining"],
-  },
-  {
-    id: 9,
-    title: "Kerala Backwaters Luxury",
-    location: "Kerala, India",
-    price: "₹19,999/night",
-    rating: 4.8,
-    image: "/kerala-backwaters-houseboat-beautiful-nature.jpg",
-    amenities: ["Houseboat Suite", "Ayurveda Spa", "Private Chef", "Yoga"],
-  },
-  {
-    id: 10,
-    title: "Rishikesh Riverside Resort",
-    location: "Uttarakhand",
-    price: "₹15,999/night",
-    rating: 4.7,
-    image: "/beautiful-waterfall-nature-hiking.jpg",
-    amenities: ["River View", "Meditation Hall", "Adventure Sports", "Spa"],
-  },
-]
+// Resort interface
+interface Resort {
+  id: string
+  title: string
+  location: string
+  price: string
+  rating: number
+  image: string
+  amenities: string[]
+  featured?: boolean
+  popular?: boolean
+  type?: 'domestic' | 'international'
+}
 
 export default function LuxuryResortsSection() {
   const [isVisible, setIsVisible] = useState(false)
@@ -115,6 +33,42 @@ export default function LuxuryResortsSection() {
   const [domesticApi, setDomesticApi] = useState<any>(null)
   const [isMobile, setIsMobile] = useState(false)
   const sectionRef = useRef<HTMLElement>(null)
+  const [internationalResorts, setInternationalResorts] = useState<Resort[]>([])
+  const [domesticResorts, setDomesticResorts] = useState<Resort[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  // Fetch resorts from MongoDB
+  useEffect(() => {
+    const fetchResorts = async () => {
+      try {
+        setIsLoading(true)
+        
+        // Fetch international resorts
+        const internationalResponse = await fetch('/api/resorts?type=international')
+        const internationalData = await internationalResponse.json()
+        
+        if (internationalData.success) {
+          setInternationalResorts(internationalData.data || [])
+        }
+        
+        // Fetch domestic resorts
+        const domesticResponse = await fetch('/api/resorts?type=domestic')
+        const domesticData = await domesticResponse.json()
+
+        if (domesticData.success) {
+          setDomesticResorts(domesticData.data || [])
+        }
+      } catch (error) {
+        console.error('Error fetching resorts:', error)
+        setInternationalResorts([])
+        setDomesticResorts([])
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchResorts()
+  }, [])
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -177,7 +131,7 @@ export default function LuxuryResortsSection() {
     resort,
     index,
   }: {
-    resort: (typeof internationalResorts)[0]
+    resort: Resort
     index: number
   }) => (
     <div
@@ -224,12 +178,14 @@ export default function LuxuryResortsSection() {
             <p className="text-xl font-bold text-primary">{resort.price}</p>
             <p className="text-xs text-muted-foreground mt-0.5">Per night</p>
           </div>
-          <Button
-            size="sm"
-            className="bg-primary hover:bg-primary/90 text-white rounded-full px-4 sm:px-5 py-1.5 sm:py-2 text-xs sm:text-sm transition-all duration-300 hover:scale-105"
-          >
-            Book Now
-          </Button>
+          <Link href={`/resorts/${resort.id}`}>
+            <Button
+              size="sm"
+              className="bg-primary hover:bg-primary/90 text-white rounded-full px-4 sm:px-5 py-1.5 sm:py-2 text-xs sm:text-sm transition-all duration-300 hover:scale-105"
+            >
+              Explore
+            </Button>
+          </Link>
         </div>
       </div>
     </div>
@@ -249,6 +205,14 @@ export default function LuxuryResortsSection() {
 
         <Tabs defaultValue="international" className="w-full">
           <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-6 sm:mb-8 lg:mb-8 bg-muted rounded-full">
+            
+          <TabsTrigger
+              value="domestic"
+              className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-white rounded-full transition-all duration-300"
+            >
+              <MapPin className="w-4 h-4" />
+              Domestic
+            </TabsTrigger>
             <TabsTrigger
               value="international"
               className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-white rounded-full transition-all duration-300"
@@ -256,55 +220,71 @@ export default function LuxuryResortsSection() {
               <Globe className="w-4 h-4" />
               International
             </TabsTrigger>
-            <TabsTrigger
-              value="domestic"
-              className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-white rounded-full transition-all duration-300"
-            >
-              <MapPin className="w-4 h-4" />
-              Domestic
-            </TabsTrigger>
+          
           </TabsList>
 
           <TabsContent value="international" className="mt-0">
-            <Carousel
-              setApi={setInternationalApi}
-              opts={{
-                align: "start",
-                loop: true,
-              }}
-              className="w-full"
-            >
-              <CarouselContent className="-ml-2 md:-ml-4">
-                {internationalResorts.map((resort, index) => (
-                  <CarouselItem key={resort.id} className="pl-2 md:pl-4 basis-full md:basis-1/2 lg:basis-1/4">
-                    <ResortCard resort={resort} index={index} />
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <CarouselPrevious className="hidden md:flex -left-12 border-border bg-background/80 backdrop-blur-sm hover:bg-background rounded-full" />
-              <CarouselNext className="hidden md:flex -right-12 border-border bg-background/80 backdrop-blur-sm hover:bg-background rounded-full" />
-            </Carousel>
+            {isLoading ? (
+              <div className="text-center py-16">
+                <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-4" />
+                <p className="text-muted-foreground">Loading international resorts...</p>
+              </div>
+            ) : internationalResorts.length > 0 ? (
+              <Carousel
+                setApi={setInternationalApi}
+                opts={{
+                  align: "start",
+                  loop: true,
+                }}
+                className="w-full"
+              >
+                <CarouselContent className="-ml-2 md:-ml-4">
+                  {internationalResorts.map((resort, index) => (
+                    <CarouselItem key={resort.id} className="pl-2 md:pl-4 basis-full md:basis-1/2 lg:basis-1/4">
+                      <ResortCard resort={resort} index={index} />
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselPrevious className="hidden md:flex -left-12 border-border bg-background/80 backdrop-blur-sm hover:bg-background rounded-full" />
+                <CarouselNext className="hidden md:flex -right-12 border-border bg-background/80 backdrop-blur-sm hover:bg-background rounded-full" />
+              </Carousel>
+            ) : (
+              <div className="text-center py-16">
+                <p className="text-muted-foreground">No international resorts available.</p>
+              </div>
+            )}
           </TabsContent>
 
           <TabsContent value="domestic" className="mt-0">
-            <Carousel
-              setApi={setDomesticApi}
-              opts={{
-                align: "start",
-                loop: true,
-              }}
-              className="w-full"
-            >
-              <CarouselContent className="-ml-2 md:-ml-4">
-                {domesticResorts.map((resort, index) => (
-                  <CarouselItem key={resort.id} className="pl-2 md:pl-4 basis-full md:basis-1/2 lg:basis-1/4">
-                    <ResortCard resort={resort} index={index} />
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <CarouselPrevious className="hidden md:flex -left-12 border-border bg-background/80 backdrop-blur-sm hover:bg-background rounded-full" />
-              <CarouselNext className="hidden md:flex -right-12 border-border bg-background/80 backdrop-blur-sm hover:bg-background rounded-full" />
-            </Carousel>
+            {isLoading ? (
+              <div className="text-center py-16">
+                <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-4" />
+                <p className="text-muted-foreground">Loading domestic resorts...</p>
+              </div>
+            ) : domesticResorts.length > 0 ? (
+              <Carousel
+                setApi={setDomesticApi}
+                opts={{
+                  align: "start",
+                  loop: true,
+                }}
+                className="w-full"
+              >
+                <CarouselContent className="-ml-2 md:-ml-4">
+                  {domesticResorts.map((resort, index) => (
+                    <CarouselItem key={resort.id} className="pl-2 md:pl-4 basis-full md:basis-1/2 lg:basis-1/4">
+                      <ResortCard resort={resort} index={index} />
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselPrevious className="hidden md:flex -left-12 border-border bg-background/80 backdrop-blur-sm hover:bg-background rounded-full" />
+                <CarouselNext className="hidden md:flex -right-12 border-border bg-background/80 backdrop-blur-sm hover:bg-background rounded-full" />
+              </Carousel>
+            ) : (
+              <div className="text-center py-16">
+                <p className="text-muted-foreground">No domestic resorts available.</p>
+              </div>
+            )}
           </TabsContent>
         </Tabs>
 

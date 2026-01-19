@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
-import { MapPin, ArrowRight } from "lucide-react"
+import { MapPin, ArrowRight, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Carousel,
@@ -10,61 +10,21 @@ import {
   CarouselItem,
 } from "@/components/ui/carousel"
 
-const locations = [
-  {
-    id: 1,
-    name: "Switzerland",
-    country: "Europe",
-    trips: 12,
-    image: "/switzerland-alps-beautiful-scenery.jpg",
-    slug: "Switzerland",
-  },
-  {
-    id: 2,
-    name: "Norway",
-    country: "Europe",
-    trips: 8,
-    image: "/norway-fjords-beautiful-water-mountains.jpg",
-    slug: "Norway",
-  },
-  {
-    id: 3,
-    name: "Ladakh",
-    country: "India",
-    trips: 15,
-    image: "/ladakh-mountains-pangong-lake-adventure.jpg",
-    slug: "Ladakh",
-  },
-  {
-    id: 4,
-    name: "Thailand",
-    country: "Asia",
-    trips: 10,
-    image: "/thailand-beach-islands-tropical-paradise.jpg",
-    slug: "Thailand",
-  },
-  {
-    id: 5,
-    name: "New Zealand",
-    country: "Oceania",
-    trips: 9,
-    image: "/new-zealand-mountains-nature-scenic.jpg",
-    slug: "New-Zealand",
-  },
-  {
-    id: 6,
-    name: "Manali",
-    country: "India",
-    trips: 18,
-    image: "/manali-mountains-snow-adventure-himachal.jpg",
-    slug: "Manali",
-  },
-]
+type DestinationItem = {
+  id: string
+  name: string
+  country: string
+  trips: number
+  image: string
+  slug: string
+}
 
 export default function LocationsSection() {
   const [isVisible, setIsVisible] = useState(false)
   const [api, setApi] = useState<any>(null)
   const [isMobile, setIsMobile] = useState(false)
+  const [destinations, setDestinations] = useState<DestinationItem[]>([])
+  const [isLoading, setIsLoading] = useState(true)
   const sectionRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
@@ -82,6 +42,27 @@ export default function LocationsSection() {
     }
 
     return () => observer.disconnect()
+  }, [])
+
+  // Fetch popular destinations from database
+  useEffect(() => {
+    const load = async () => {
+      try {
+        setIsLoading(true)
+        const res = await fetch("/api/destinations?popular=true")
+        const json = await res.json()
+        if (json.success && Array.isArray(json.data)) {
+          setDestinations(json.data)
+        } else {
+          setDestinations([])
+        }
+      } catch {
+        setDestinations([])
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    load()
   }, [])
 
   // Check if mobile
@@ -109,6 +90,8 @@ export default function LocationsSection() {
     return () => clearInterval(interval)
   }, [api, isMobile])
 
+  const dataToRender = destinations
+
   return (
     <section ref={sectionRef} id="destinations" className="py-8 sm:py-12 lg:py-16 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
@@ -121,6 +104,16 @@ export default function LocationsSection() {
           </p>
         </div>
 
+        {isLoading ? (
+          <div className="flex items-center justify-center py-10">
+            <Loader2 className="w-7 h-7 animate-spin text-primary" />
+          </div>
+        ) : dataToRender.length === 0 ? (
+          <div className="text-center py-12 bg-card border border-border rounded-lg">
+            <p className="text-muted-foreground">No destinations found. Admin can add destinations from the admin dashboard.</p>
+          </div>
+        ) : null}
+
         {/* Mobile: Carousel with auto-scroll, Desktop: Grid */}
         <div className="block md:hidden">
           <Carousel
@@ -132,7 +125,7 @@ export default function LocationsSection() {
             className="w-full"
           >
             <CarouselContent className="-ml-2">
-              {locations.map((location, index) => (
+              {dataToRender.map((location, index) => (
                 <CarouselItem key={location.id} className="pl-2 basis-full">
                   <Link
                     href={`/trips/${location.slug}`}
@@ -169,7 +162,7 @@ export default function LocationsSection() {
 
         {/* Desktop: Grid */}
         <div className="hidden md:grid md:grid-cols-4 gap-4 lg:gap-6">
-          {locations.map((location, index) => (
+          {dataToRender.map((location, index) => (
             <Link
               key={location.id}
               href={`/trips/${location.slug}`}

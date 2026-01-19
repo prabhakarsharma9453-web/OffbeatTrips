@@ -4,13 +4,17 @@ import type React from "react"
 
 import { useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { signIn } from "next-auth/react"
 import { Eye, EyeOff, Mail, Lock, User, MapPin, Phone } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { useToast } from "@/hooks/use-toast"
 import Navbar from "@/components/navbar"
 
 export default function SignupPage() {
+  const router = useRouter()
+  const { toast } = useToast()
   const [showPassword, setShowPassword] = useState(false)
   const [formData, setFormData] = useState({
     name: "",
@@ -21,18 +25,83 @@ export default function SignupPage() {
   })
   const [isLoading, setIsLoading] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log("Signup:", formData)
-    // Email/password signup implementation would go here
+
+    if (formData.password !== formData.confirmPassword) {
+      alert("Passwords do not match")
+      return
+    }
+
+    if (formData.password.length < 6) {
+      alert("Password must be at least 6 characters")
+      return
+    }
+
+    setIsLoading(true)
+
+    try {
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: formData.email, // Using email as username for now
+          email: formData.email,
+          password: formData.password,
+          name: formData.name,
+          phone: formData.phone,
+          role: "user", // Default to user role
+        }),
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        // Auto login after successful registration
+        const signInResult = await signIn("credentials", {
+          username: formData.email,
+          password: formData.password,
+          redirect: false,
+        })
+
+        if (signInResult?.ok) {
+          toast({
+            title: "Success",
+            description: "Account created successfully! Redirecting to dashboard...",
+          })
+          router.push("/dashboard")
+          router.refresh()
+        }
+      } else {
+        toast({
+          title: "Error",
+          description: result.error || "Failed to create account",
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to create account",
+        variant: "destructive",
+      })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handleGoogleSignup = async () => {
     setIsLoading(true)
     try {
-      await signIn("google", { callbackUrl: "/" })
+      // Redirect to dashboard after Google signup
+      await signIn("google", { callbackUrl: "/dashboard" })
     } catch (error) {
       console.error("Google signup error:", error)
+      toast({
+        title: "Error",
+        description: "Failed to sign up with Google",
+        variant: "destructive",
+      })
     } finally {
       setIsLoading(false)
     }

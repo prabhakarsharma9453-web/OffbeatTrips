@@ -4,9 +4,10 @@ import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
-import { MapPin, Star, Sparkles, Search, Filter, Crown, TrendingUp, Award } from "lucide-react"
+import { MapPin, Star, Sparkles, Search, Filter, Crown, TrendingUp, Award, Loader2, Globe, Home } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 const luxuryQuotes = [
   "Luxury is not a place, it's an experience.",
@@ -16,154 +17,19 @@ const luxuryQuotes = [
   "The best luxury is the luxury of being yourself.",
 ]
 
-const locations = [
-  "All Locations",
-  "Maldives",
-  "Switzerland",
-  "Greece",
-  "UAE",
-  "Indonesia",
-  "Rajasthan, India",
-  "Goa, India",
-  "Himachal Pradesh",
-  "Kerala, India",
-  "Uttarakhand",
-]
-
-const allResorts = [
-  {
-    id: 1,
-    title: "The Maldives Paradise Resort",
-    location: "Maldives",
-    price: "$899/night",
-    rating: 4.9,
-    image: "/thailand-beach-islands-tropical-paradise.jpg",
-    amenities: ["Private Villa", "Infinity Pool", "Spa", "Beach Access"],
-    featured: true,
-    popular: true,
-  },
-  {
-    id: 2,
-    title: "Swiss Alpine Luxury Lodge",
-    location: "Switzerland",
-    price: "$1,299/night",
-    rating: 4.8,
-    image: "/swiss-alps-mountains-snow-travel.jpg",
-    amenities: ["Mountain View", "Ski Access", "Fine Dining", "Spa"],
-    featured: true,
-    popular: false,
-  },
-  {
-    id: 3,
-    title: "Santorini Cliffside Resort",
-    location: "Greece",
-    price: "$799/night",
-    rating: 4.9,
-    image: "/coastal-hiking-beach-cliffs-adventure.jpg",
-    amenities: ["Sunset Views", "Infinity Pool", "Wine Cellar", "Private Beach"],
-    featured: false,
-    popular: true,
-  },
-  {
-    id: 4,
-    title: "Dubai Desert Oasis",
-    location: "UAE",
-    price: "$1,499/night",
-    rating: 4.8,
-    image: "/beautiful-waterfall-nature-hiking.jpg",
-    amenities: ["Desert Views", "Private Pool", "Butler Service", "Spa"],
-    featured: true,
-    popular: true,
-  },
-  {
-    id: 5,
-    title: "Bali Tropical Retreat",
-    location: "Indonesia",
-    price: "$699/night",
-    rating: 4.9,
-    image: "/kerala-backwaters-houseboat-beautiful-nature.jpg",
-    amenities: ["Villa Suite", "Private Beach", "Yoga Studio", "Spa"],
-    featured: false,
-    popular: true,
-  },
-  {
-    id: 6,
-    title: "Rajasthan Palace Heritage",
-    location: "Rajasthan, India",
-    price: "₹25,999/night",
-    rating: 4.9,
-    image: "/ladakh-mountains-pangong-lake-adventure.jpg",
-    amenities: ["Heritage Room", "Palace Tour", "Cultural Shows", "Spa"],
-    featured: true,
-    popular: true,
-  },
-  {
-    id: 7,
-    title: "Goa Beachfront Luxury",
-    location: "Goa, India",
-    price: "₹18,999/night",
-    rating: 4.8,
-    image: "/thailand-beach-islands-tropical-paradise.jpg",
-    amenities: ["Beach Villa", "Infinity Pool", "Water Sports", "Spa"],
-    featured: false,
-    popular: true,
-  },
-  {
-    id: 8,
-    title: "Himalayan Mountain Resort",
-    location: "Himachal Pradesh",
-    price: "₹22,999/night",
-    rating: 4.9,
-    image: "/manali-mountains-snow-adventure-himachal.jpg",
-    amenities: ["Mountain View", "Adventure Activities", "Wellness Center", "Fine Dining"],
-    featured: true,
-    popular: false,
-  },
-  {
-    id: 9,
-    title: "Kerala Backwaters Luxury",
-    location: "Kerala, India",
-    price: "₹19,999/night",
-    rating: 4.8,
-    image: "/kerala-backwaters-houseboat-beautiful-nature.jpg",
-    amenities: ["Houseboat Suite", "Ayurveda Spa", "Private Chef", "Yoga"],
-    featured: false,
-    popular: true,
-  },
-  {
-    id: 10,
-    title: "Rishikesh Riverside Resort",
-    location: "Uttarakhand",
-    price: "₹15,999/night",
-    rating: 4.7,
-    image: "/beautiful-waterfall-nature-hiking.jpg",
-    amenities: ["River View", "Meditation Hall", "Adventure Sports", "Spa"],
-    featured: false,
-    popular: false,
-  },
-  {
-    id: 11,
-    title: "Tuscany Vineyard Estate",
-    location: "Italy",
-    price: "$1,199/night",
-    rating: 4.9,
-    image: "/swiss-alps-mountains-snow-travel.jpg",
-    amenities: ["Wine Tasting", "Private Vineyard", "Gourmet Dining", "Spa"],
-    featured: true,
-    popular: true,
-  },
-  {
-    id: 12,
-    title: "Tokyo Skyline Luxury",
-    location: "Japan",
-    price: "$1,099/night",
-    rating: 4.8,
-    image: "/norway-fjords-beautiful-water-mountains.jpg",
-    amenities: ["City Views", "Fine Dining", "Traditional Spa", "Concierge"],
-    featured: false,
-    popular: true,
-  },
-]
+// Resort interface
+interface Resort {
+  id: string
+  title: string
+  location: string
+  price: string
+  rating: number
+  image: string
+  amenities: string[]
+  featured: boolean
+  popular: boolean
+  type?: 'domestic' | 'international'
+}
 
 export default function AllResortsPage() {
   const [isVisible, setIsVisible] = useState(false)
@@ -172,6 +38,59 @@ export default function AllResortsPage() {
   const [sortBy, setSortBy] = useState<"popular" | "featured" | "rating" | "price">("popular")
   const sectionRef = useRef<HTMLElement>(null)
   const [currentQuote, setCurrentQuote] = useState(luxuryQuotes[0])
+  const [allResorts, setAllResorts] = useState<Resort[]>([])
+  const [internationalResorts, setInternationalResorts] = useState<Resort[]>([])
+  const [domesticResorts, setDomesticResorts] = useState<Resort[]>([])
+  const [locations, setLocations] = useState<string[]>(["All Locations"])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState<"all" | "international" | "domestic">("all")
+
+  // Fetch resorts from MongoDB
+  useEffect(() => {
+    const fetchResorts = async () => {
+      try {
+        setIsLoading(true)
+        setError(null)
+
+        // Fetch all resorts
+        const allResponse = await fetch('/api/resorts')
+        const allData = await allResponse.json()
+
+        if (allData.success) {
+          const resorts = allData.data || []
+          setAllResorts(resorts)
+
+          // Separate by type
+          const international = resorts.filter((r: Resort) => r.type === 'international')
+          const domestic = resorts.filter((r: Resort) => r.type === 'domestic')
+          setInternationalResorts(international)
+          setDomesticResorts(domestic)
+
+          // Extract unique locations
+          const uniqueLocations = Array.from(
+            new Set(resorts.map((r: Resort) => r.location).filter(Boolean))
+          )
+          setLocations(["All Locations", ...uniqueLocations])
+        } else {
+          setError(allData.error || "Failed to fetch resorts")
+          setAllResorts([])
+          setInternationalResorts([])
+          setDomesticResorts([])
+        }
+      } catch (error) {
+        console.error('Error fetching resorts:', error)
+        setError(error instanceof Error ? error.message : "Failed to fetch resorts")
+        setAllResorts([])
+        setInternationalResorts([])
+        setDomesticResorts([])
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchResorts()
+  }, [])
 
   useEffect(() => {
     setIsVisible(true)
@@ -181,7 +100,14 @@ export default function AllResortsPage() {
     return () => clearInterval(quoteInterval)
   }, [])
 
-  const filteredResorts = allResorts
+  // Get resorts based on active tab
+  const getResortsForTab = () => {
+    if (activeTab === "international") return internationalResorts
+    if (activeTab === "domestic") return domesticResorts
+    return allResorts
+  }
+
+  const filteredResorts = getResortsForTab()
     .filter((resort) => {
       const matchesLocation = selectedLocation === "All Locations" || resort.location === selectedLocation
       const matchesSearch = !searchQuery || resort.title.toLowerCase().includes(searchQuery.toLowerCase()) || resort.location.toLowerCase().includes(searchQuery.toLowerCase())
@@ -202,7 +128,7 @@ export default function AllResortsPage() {
       return 0
     })
 
-  const ResortCard = ({ resort, index }: { resort: (typeof allResorts)[0]; index: number }) => (
+  const ResortCard = ({ resort, index }: { resort: Resort; index: number }) => (
     <div
       className={`group relative bg-card rounded-3xl overflow-hidden border border-border hover:border-primary/50 transition-all duration-500 hover:shadow-xl hover:shadow-primary/20 ${
         isVisible ? "animate-fade-in-up" : "opacity-0"
@@ -260,12 +186,14 @@ export default function AllResortsPage() {
             </p>
             <p className="text-xs text-muted-foreground mt-0.5">Per night</p>
           </div>
-          <Button
-            size="sm"
-            className="bg-primary hover:bg-primary/90 text-white rounded-full px-5 py-2 text-sm transition-all duration-300 hover:scale-105"
-          >
-            Book Now
-          </Button>
+          <Link href={`/resorts/${resort.id}`}>
+            <Button
+              size="sm"
+              className="bg-primary hover:bg-primary/90 text-white rounded-full px-5 py-2 text-sm transition-all duration-300 hover:scale-105"
+            >
+              Explore
+            </Button>
+          </Link>
         </div>
       </div>
     </div>
@@ -368,33 +296,120 @@ export default function AllResortsPage() {
             </div>
           </div>
 
-          {/* Results Count */}
-          <div className="mb-8 text-center">
-            <p className="text-muted-foreground text-lg">
-              Discover <span className="text-primary font-bold text-xl">{filteredResorts.length}</span> luxury resorts
-            </p>
-          </div>
-
-          {/* Resorts Grid */}
-          {filteredResorts.length > 0 ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {filteredResorts.map((resort, index) => (
-                <ResortCard key={resort.id} resort={resort} index={index} />
-              ))}
-            </div>
-          ) : (
+          {/* Loading State */}
+          {isLoading && (
             <div className="text-center py-16">
-              <p className="text-muted-foreground text-lg">No resorts found matching your criteria.</p>
+              <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-4" />
+              <p className="text-muted-foreground text-lg">Loading resorts...</p>
+            </div>
+          )}
+
+          {/* Error State */}
+          {error && !isLoading && (
+            <div className="text-center py-16">
+              <p className="text-destructive text-lg mb-4">{error}</p>
               <Button
-                onClick={() => {
-                  setSelectedLocation("All Locations")
-                  setSearchQuery("")
-                }}
+                onClick={() => window.location.reload()}
                 variant="outline"
-                className="mt-4 rounded-full"
+                className="rounded-full"
               >
-                Clear Filters
+                Retry
               </Button>
+            </div>
+          )}
+
+          {/* Type Tabs */}
+          {!isLoading && !error && (
+            <div className="mb-8">
+              <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as typeof activeTab)} className="w-full">
+                <TabsList className="grid w-full max-w-md mx-auto grid-cols-3 bg-card/60 backdrop-blur-md border border-border/50 rounded-full p-1">
+                  <TabsTrigger
+                    value="all"
+                    className="rounded-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white"
+                  >
+                    All Resorts ({allResorts.length})
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="international"
+                    className="rounded-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white flex items-center gap-2"
+                  >
+                    <Globe className="w-4 h-4" />
+                    International ({internationalResorts.length})
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="domestic"
+                    className="rounded-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white flex items-center gap-2"
+                  >
+                    <Home className="w-4 h-4" />
+                    Domestic ({domesticResorts.length})
+                  </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="all" className="mt-8">
+                  <div className="mb-8 text-center">
+                    <p className="text-muted-foreground text-lg">
+                      Discover <span className="text-primary font-bold text-xl">{filteredResorts.length}</span> luxury resorts
+                    </p>
+                  </div>
+                  {filteredResorts.length > 0 ? (
+                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                      {filteredResorts.map((resort, index) => (
+                        <ResortCard key={resort.id} resort={resort} index={index} />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-16">
+                      <p className="text-muted-foreground text-lg">No resorts found matching your criteria.</p>
+                    </div>
+                  )}
+                </TabsContent>
+
+                <TabsContent value="international" className="mt-8">
+                  <div className="mb-8 text-center">
+                    <div className="inline-flex items-center gap-2 bg-blue-500/20 border border-blue-500/30 px-4 py-2 rounded-full mb-4">
+                      <Globe className="w-4 h-4 text-blue-400" />
+                      <span className="text-blue-300 text-sm font-semibold">International Resorts</span>
+                    </div>
+                    <p className="text-muted-foreground text-lg">
+                      Discover <span className="text-primary font-bold text-xl">{filteredResorts.length}</span> international resorts
+                    </p>
+                  </div>
+                  {filteredResorts.length > 0 ? (
+                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                      {filteredResorts.map((resort, index) => (
+                        <ResortCard key={resort.id} resort={resort} index={index} />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-16">
+                      <p className="text-muted-foreground text-lg">No international resorts found matching your criteria.</p>
+                    </div>
+                  )}
+                </TabsContent>
+
+                <TabsContent value="domestic" className="mt-8">
+                  <div className="mb-8 text-center">
+                    <div className="inline-flex items-center gap-2 bg-green-500/20 border border-green-500/30 px-4 py-2 rounded-full mb-4">
+                      <Home className="w-4 h-4 text-green-400" />
+                      <span className="text-green-300 text-sm font-semibold">Domestic Resorts</span>
+                    </div>
+                    <p className="text-muted-foreground text-lg">
+                      Discover <span className="text-primary font-bold text-xl">{filteredResorts.length}</span> domestic resorts
+                    </p>
+                  </div>
+                  {filteredResorts.length > 0 ? (
+                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                      {filteredResorts.map((resort, index) => (
+                        <ResortCard key={resort.id} resort={resort} index={index} />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-16">
+                      <p className="text-muted-foreground text-lg">No domestic resorts found matching your criteria.</p>
+                    </div>
+                  )}
+                </TabsContent>
+              </Tabs>
             </div>
           )}
         </div>

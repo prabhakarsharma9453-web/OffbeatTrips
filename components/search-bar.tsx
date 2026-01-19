@@ -1,78 +1,45 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
-import { Search, MapPin, Globe, Hotel, Activity, ArrowRight, X } from "lucide-react"
+import { useState, useEffect, useRef, useCallback } from "react"
+import { Search, MapPin, Globe, Hotel, Activity, ArrowRight, X, Loader2, Route } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
 
-// Search data - consolidated from various sections
-const searchData = {
-  packages: [
-    { id: 1, title: "Swiss Alps Explorer", location: "Switzerland", type: "International", url: "/packages" },
-    { id: 2, title: "Norwegian Fjords", location: "Norway", type: "International", url: "/packages" },
-    { id: 3, title: "Thailand Paradise", location: "Thailand", type: "International", url: "/packages" },
-    { id: 4, title: "Ladakh Adventure", location: "Ladakh, India", type: "Domestic", url: "/packages" },
-    { id: 5, title: "Kerala Backwaters", location: "Kerala, India", type: "Domestic", url: "/packages" },
-    { id: 6, title: "Manali Expedition", location: "Himachal Pradesh", type: "Domestic", url: "/packages" },
-    { id: 7, title: "Bali Adventure", location: "Indonesia", type: "International", url: "/packages" },
-    { id: 8, title: "Rajasthan Royal", location: "Rajasthan, India", type: "Domestic", url: "/packages" },
-    { id: 11, title: "Paris Romance", location: "France", type: "International", url: "/packages" },
-    { id: 12, title: "Iceland Adventure", location: "Iceland", type: "International", url: "/packages" },
-    { id: 13, title: "Goa Beach Escape", location: "Goa, India", type: "Domestic", url: "/packages" },
-    { id: 14, title: "Darjeeling Tea Trails", location: "West Bengal", type: "Domestic", url: "/packages" },
-  ],
-  resorts: [
-    { id: 1, title: "The Maldives Paradise Resort", location: "Maldives", url: "/resorts" },
-    { id: 2, title: "Swiss Alpine Luxury Lodge", location: "Switzerland", url: "/resorts" },
-    { id: 3, title: "Santorini Cliffside Resort", location: "Greece", url: "/resorts" },
-    { id: 4, title: "Dubai Desert Oasis", location: "UAE", url: "/resorts" },
-    { id: 5, title: "Bali Tropical Retreat", location: "Indonesia", url: "/resorts" },
-    { id: 6, title: "Rajasthan Palace Heritage", location: "Rajasthan, India", url: "/resorts" },
-    { id: 7, title: "Goa Beachfront Luxury", location: "Goa, India", url: "/resorts" },
-    { id: 8, title: "Himalayan Mountain Resort", location: "Himachal Pradesh", url: "/resorts" },
-    { id: 9, title: "Kerala Backwaters Luxury", location: "Kerala, India", url: "/resorts" },
-    { id: 10, title: "Rishikesh Riverside Resort", location: "Uttarakhand", url: "/resorts" },
-  ],
-  destinations: [
-    { id: 1, title: "Switzerland", type: "International", url: "/destinations/international" },
-    { id: 2, title: "Norway", type: "International", url: "/destinations/international" },
-    { id: 3, title: "Thailand", type: "International", url: "/destinations/international" },
-    { id: 4, title: "Maldives", type: "International", url: "/destinations/international" },
-    { id: 5, title: "Bali", type: "International", url: "/destinations/international" },
-    { id: 6, title: "Greece", type: "International", url: "/destinations/international" },
-    { id: 7, title: "Dubai", type: "International", url: "/destinations/international" },
-    { id: 8, title: "Ladakh", type: "Domestic", url: "/destinations/domestic" },
-    { id: 9, title: "Kerala", type: "Domestic", url: "/destinations/domestic" },
-    { id: 10, title: "Manali", type: "Domestic", url: "/destinations/domestic" },
-    { id: 11, title: "Goa", type: "Domestic", url: "/destinations/domestic" },
-    { id: 12, title: "Rajasthan", type: "Domestic", url: "/destinations/domestic" },
-  ],
-  activities: [
-    { id: 1, title: "Hiking", url: "/#activities" },
-    { id: 2, title: "Camping", url: "/#activities" },
-    { id: 3, title: "Water Sports", url: "/#activities" },
-    { id: 4, title: "Paragliding", url: "/#activities" },
-    { id: 5, title: "Skiing", url: "/#activities" },
-    { id: 6, title: "Cycling", url: "/#activities" },
-    { id: 7, title: "Cruises", url: "/#activities" },
-    { id: 8, title: "Photography Tours", url: "/#activities" },
-  ],
-}
+// Local (non-DB) search targets
+const staticDestinations = [
+  { id: 1, title: "Domestic Destinations", type: "Domestic", url: "/destinations/domestic" },
+  { id: 2, title: "International Destinations", type: "International", url: "/destinations/international" },
+]
+
+const staticActivities = [
+  { id: 1, title: "Hiking", url: "/activities/hiking" },
+  { id: 2, title: "Camping", url: "/activities/camping" },
+  { id: 3, title: "Water Sports", url: "/activities/water-sports" },
+  { id: 4, title: "Paragliding", url: "/activities/paragliding" },
+  { id: 5, title: "Skiing", url: "/activities/skiing" },
+  { id: 6, title: "Cycling", url: "/activities/cycling" },
+  { id: 7, title: "Cruises", url: "/activities/cruises" },
+  { id: 8, title: "Photography Tours", url: "/activities/photography-tours" },
+]
 
 interface SearchResult {
   id: string
   title: string
   location?: string
+  country?: string
   type?: string
-  category: "package" | "resort" | "destination" | "activity"
+  category: "package" | "resort" | "trip" | "destination" | "activity"
   url: string
+  image?: string
 }
 
 export default function SearchBar() {
   const [searchQuery, setSearchQuery] = useState("")
   const [results, setResults] = useState<SearchResult[]>([])
   const [showResults, setShowResults] = useState(false)
+  const [isSearching, setIsSearching] = useState(false)
   const searchRef = useRef<HTMLDivElement>(null)
+  const debounceTimer = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -85,76 +52,94 @@ export default function SearchBar() {
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
 
-  useEffect(() => {
-    if (searchQuery.trim().length === 0) {
+  const performSearch = useCallback(async (query: string) => {
+    if (!query || query.trim().length === 0) {
       setResults([])
       setShowResults(false)
+      setIsSearching(false)
       return
     }
 
-    const query = searchQuery.toLowerCase().trim()
-    const searchResults: SearchResult[] = []
+    setIsSearching(true)
 
-    // Search packages
-    searchData.packages.forEach((pkg) => {
-      if (
-        pkg.title.toLowerCase().includes(query) ||
-        pkg.location.toLowerCase().includes(query) ||
-        pkg.type.toLowerCase().includes(query)
-      ) {
-        searchResults.push({
-          id: `package-${pkg.id}`,
-          title: pkg.title,
-          location: pkg.location,
-          type: pkg.type,
-          category: "package",
-          url: pkg.url,
+    try {
+      const response = await fetch(`/api/search?q=${encodeURIComponent(query.trim())}`)
+      const result = await response.json()
+
+      if (result.success && result.data) {
+        const apiResults: SearchResult[] = (result.data.all || []) as SearchResult[]
+
+        // Local matches (destinations + activity pages)
+        const qLower = query.trim().toLowerCase()
+        const localResults: SearchResult[] = []
+
+        staticDestinations.forEach((d) => {
+          if (d.title.toLowerCase().includes(qLower) || d.type.toLowerCase().includes(qLower)) {
+            localResults.push({
+              id: `dest-${d.id}`,
+              title: d.title,
+              type: d.type,
+              category: "destination",
+              url: d.url,
+            })
+          }
         })
-      }
-    })
 
-    // Search resorts
-    searchData.resorts.forEach((resort) => {
-      if (resort.title.toLowerCase().includes(query) || resort.location.toLowerCase().includes(query)) {
-        searchResults.push({
-          id: `resort-${resort.id}`,
-          title: resort.title,
-          location: resort.location,
-          category: "resort",
-          url: resort.url,
+        staticActivities.forEach((a) => {
+          if (a.title.toLowerCase().includes(qLower)) {
+            localResults.push({
+              id: `activity-${a.id}`,
+              title: a.title,
+              category: "activity",
+              url: a.url,
+            })
+          }
         })
-      }
-    })
 
-    // Search destinations
-    searchData.destinations.forEach((dest) => {
-      if (dest.title.toLowerCase().includes(query) || dest.type.toLowerCase().includes(query)) {
-        searchResults.push({
-          id: `dest-${dest.id}`,
-          title: dest.title,
-          type: dest.type,
-          category: "destination",
-          url: dest.url,
-        })
-      }
-    })
+        // Merge + de-dupe
+        const merged = [...apiResults, ...localResults]
+        const deduped: SearchResult[] = []
+        const seen = new Set<string>()
+        for (const r of merged) {
+          const key = `${r.category}|${r.title}|${r.url}`
+          if (seen.has(key)) continue
+          seen.add(key)
+          deduped.push(r)
+        }
 
-    // Search activities
-    searchData.activities.forEach((activity) => {
-      if (activity.title.toLowerCase().includes(query)) {
-        searchResults.push({
-          id: `activity-${activity.id}`,
-          title: activity.title,
-          category: "activity",
-          url: activity.url,
-        })
+        setResults(deduped.slice(0, 12))
+        setShowResults(deduped.length > 0)
+      } else {
+        setResults([])
+        setShowResults(false)
       }
-    })
+    } catch (error) {
+      console.error('Search error:', error)
+      setResults([])
+      setShowResults(false)
+    } finally {
+      setIsSearching(false)
+    }
+  }, [])
 
-    setResults(searchResults.slice(0, 8)) // Limit to 8 results
-    // Automatically show results when there are matches
-    setShowResults(searchResults.length > 0)
-  }, [searchQuery])
+  useEffect(() => {
+    // Clear previous timer
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current)
+    }
+
+    // Set new timer for debounced search
+    debounceTimer.current = setTimeout(() => {
+      performSearch(searchQuery)
+    }, 300) // 300ms debounce delay
+
+    // Cleanup
+    return () => {
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current)
+      }
+    }
+  }, [searchQuery, performSearch])
 
   const getCategoryIcon = (category: SearchResult["category"]) => {
     switch (category) {
@@ -162,6 +147,8 @@ export default function SearchBar() {
         return <Globe className="w-4 h-4" />
       case "resort":
         return <Hotel className="w-4 h-4" />
+      case "trip":
+        return <Route className="w-4 h-4" />
       case "destination":
         return <MapPin className="w-4 h-4" />
       case "activity":
@@ -175,6 +162,8 @@ export default function SearchBar() {
         return "Package"
       case "resort":
         return "Resort"
+      case "trip":
+        return "Trip"
       case "destination":
         return "Destination"
       case "activity":
@@ -198,7 +187,11 @@ export default function SearchBar() {
           <div className="flex items-center gap-2 md:gap-2.5 px-3 py-2.5 md:px-4 md:py-3">
             {/* Search Icon */}
             <div className="flex-shrink-0 w-8 h-8 md:w-9 md:h-9 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center border border-primary/20 group-focus-within:border-primary/40 group-focus-within:bg-gradient-to-br group-focus-within:from-primary/30 group-focus-within:to-secondary/30 transition-all duration-300">
-              <Search className="w-4 h-4 md:w-4 md:h-4 text-primary group-focus-within:scale-110 transition-transform duration-300" />
+              {isSearching ? (
+                <Loader2 className="w-4 h-4 md:w-4 md:h-4 text-primary animate-spin" />
+              ) : (
+                <Search className="w-4 h-4 md:w-4 md:h-4 text-primary group-focus-within:scale-110 transition-transform duration-300" />
+              )}
             </div>
 
             {/* Input Field */}
@@ -232,6 +225,8 @@ export default function SearchBar() {
                   setShowResults(false)
                 }}
                 className="flex-shrink-0 w-8 h-8 md:w-8 md:h-8 rounded-full bg-muted/50 hover:bg-muted/80 flex items-center justify-center text-muted-foreground hover:text-white transition-all duration-300 hover:scale-110"
+                aria-label="Clear search"
+                title="Clear search"
               >
                 <X className="w-3 h-3 md:w-3.5 md:h-3.5" />
               </button>
@@ -269,9 +264,10 @@ export default function SearchBar() {
                         {getCategoryLabel(result.category)}
                       </span>
                     </div>
-                    {(result.location || result.type) && (
+                    {(result.location || result.country || result.type) && (
                       <p className="text-sm text-muted-foreground truncate">
-                        {result.location || result.type}
+                        {result.location || result.country || result.type}
+                        {result.country && result.location && result.country !== result.location && `, ${result.country}`}
                       </p>
                     )}
                   </div>

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
-import { Globe, MapPin, Clock, Star, ArrowRight } from "lucide-react"
+import { Globe, MapPin, Clock, Star, ArrowRight, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import {
@@ -12,132 +12,21 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel"
-
-const internationalPackages = [
-  {
-    id: 1,
-    title: "Swiss Alps Explorer",
-    location: "Switzerland",
-    duration: "7 Days",
-    price: "$2,499",
-    rating: 4.9,
-    image: "/swiss-alps-mountains-snow-travel.jpg",
-    highlights: ["Mountain Hiking", "Scenic Train", "Glacier Walk"],
-  },
-  {
-    id: 2,
-    title: "Norwegian Fjords",
-    location: "Norway",
-    duration: "6 Days",
-    price: "$2,199",
-    rating: 4.8,
-    image: "/norway-fjords-beautiful-water-mountains.jpg",
-    highlights: ["Fjord Cruise", "Northern Lights", "Ice Climbing"],
-  },
-  {
-    id: 3,
-    title: "Thailand Paradise",
-    location: "Thailand",
-    duration: "5 Days",
-    price: "$1,299",
-    rating: 4.7,
-    image: "/thailand-beach-islands-tropical-paradise.jpg",
-    highlights: ["Island Hopping", "Snorkeling", "Thai Cuisine"],
-  },
-  {
-    id: 7,
-    title: "Bali Adventure",
-    location: "Indonesia",
-    duration: "6 Days",
-    price: "$1,599",
-    rating: 4.8,
-    image: "/kerala-backwaters-houseboat-beautiful-nature.jpg",
-    highlights: ["Volcano Trek", "Beach Hopping", "Cultural Tours"],
-  },
-  {
-    id: 11,
-    title: "Paris Romance",
-    location: "France",
-    duration: "5 Days",
-    price: "$2,299",
-    rating: 4.9,
-    image: "/coastal-hiking-beach-cliffs-adventure.jpg",
-    highlights: ["Eiffel Tower", "Louvre Museum", "Fine Dining"],
-  },
-  {
-    id: 12,
-    title: "Iceland Adventure",
-    location: "Iceland",
-    duration: "7 Days",
-    price: "$2,799",
-    rating: 4.8,
-    image: "/beautiful-waterfall-nature-hiking.jpg",
-    highlights: ["Northern Lights", "Glacier Hiking", "Hot Springs"],
-  },
-]
-
-const domesticPackages = [
-  {
-    id: 4,
-    title: "Ladakh Adventure",
-    location: "Ladakh, India",
-    duration: "8 Days",
-    price: "₹45,999",
-    rating: 4.9,
-    image: "/ladakh-mountains-pangong-lake-adventure.jpg",
-    highlights: ["Pangong Lake", "Nubra Valley", "Monastery Tour"],
-  },
-  {
-    id: 5,
-    title: "Kerala Backwaters",
-    location: "Kerala, India",
-    duration: "5 Days",
-    price: "₹28,999",
-    rating: 4.8,
-    image: "/kerala-backwaters-houseboat-beautiful-nature.jpg",
-    highlights: ["Houseboat Stay", "Ayurveda Spa", "Tea Plantations"],
-  },
-  {
-    id: 6,
-    title: "Manali Expedition",
-    location: "Himachal Pradesh",
-    duration: "4 Days",
-    price: "₹18,999",
-    rating: 4.7,
-    image: "/manali-mountains-snow-adventure-himachal.jpg",
-    highlights: ["Solang Valley", "Rohtang Pass", "River Rafting"],
-  },
-  {
-    id: 8,
-    title: "Rajasthan Royal",
-    location: "Rajasthan, India",
-    duration: "6 Days",
-    price: "₹32,999",
-    rating: 4.9,
-    image: "/coastal-hiking-beach-cliffs-adventure.jpg",
-    highlights: ["Palace Tour", "Desert Safari", "Cultural Shows"],
-  },
-  {
-    id: 13,
-    title: "Goa Beach Escape",
-    location: "Goa, India",
-    duration: "4 Days",
-    price: "₹22,999",
-    rating: 4.8,
-    image: "/thailand-beach-islands-tropical-paradise.jpg",
-    highlights: ["Beach Activities", "Water Sports", "Nightlife"],
-  },
-  {
-    id: 14,
-    title: "Darjeeling Tea Trails",
-    location: "West Bengal",
-    duration: "5 Days",
-    price: "₹26,999",
-    rating: 4.7,
-    image: "/swiss-alps-mountains-snow-travel.jpg",
-    highlights: ["Tea Gardens", "Toy Train", "Sunrise Views"],
-  },
-]
+interface Package {
+  id: string
+  slug: string
+  title: string
+  location: string
+  country: string
+  duration: string
+  price: string
+  rating: number
+  reviewCount: number
+  image: string
+  highlights: string[]
+  activities: string[]
+  type: 'domestic' | 'international'
+}
 
 export default function PackagesSection() {
   const [isVisible, setIsVisible] = useState(false)
@@ -145,6 +34,42 @@ export default function PackagesSection() {
   const [domesticApi, setDomesticApi] = useState<any>(null)
   const [isMobile, setIsMobile] = useState(false)
   const sectionRef = useRef<HTMLElement>(null)
+  const [internationalPackages, setInternationalPackages] = useState<Package[]>([])
+  const [domesticPackages, setDomesticPackages] = useState<Package[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  // Fetch packages from MongoDB
+  useEffect(() => {
+    const fetchPackages = async () => {
+      try {
+        setIsLoading(true)
+        
+        // Fetch international packages
+        const internationalResponse = await fetch('/api/packages?type=international')
+        const internationalData = await internationalResponse.json()
+        
+        if (internationalData.success) {
+          setInternationalPackages(internationalData.data || [])
+        }
+        
+        // Fetch domestic packages
+        const domesticResponse = await fetch('/api/packages?type=domestic')
+        const domesticData = await domesticResponse.json()
+
+        if (domesticData.success) {
+          setDomesticPackages(domesticData.data || [])
+        }
+      } catch (error) {
+        console.error('Error fetching packages:', error)
+        setInternationalPackages([])
+        setDomesticPackages([])
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchPackages()
+  }, [])
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -203,7 +128,7 @@ export default function PackagesSection() {
     return () => clearInterval(interval)
   }, [domesticApi, isMobile])
 
-  const PackageCard = ({ pkg, index }: { pkg: (typeof internationalPackages)[0]; index: number }) => (
+  const PackageCard = ({ pkg, index }: { pkg: Package; index: number }) => (
     <div
       className={`group bg-card rounded-2xl overflow-hidden border border-border hover:border-primary/50 transition-all duration-500 h-full ${
         isVisible ? "animate-fade-in-up" : "opacity-0"
@@ -228,7 +153,7 @@ export default function PackagesSection() {
         </div>
         <h3 className="text-lg sm:text-xl font-semibold text-white mb-2 sm:mb-3">{pkg.title}</h3>
         <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-4">
-          {pkg.highlights.map((highlight) => (
+          {pkg.highlights.slice(0, 3).map((highlight) => (
             <span key={highlight} className="text-xs bg-muted px-2 py-1 rounded-full text-muted-foreground">
               {highlight}
             </span>
@@ -236,15 +161,17 @@ export default function PackagesSection() {
         </div>
         <div className="flex items-center justify-between pt-3 sm:pt-4 border-t border-border">
           <div>
-            <p className="text-xl sm:text-2xl font-bold text-primary">{pkg.price}</p>
+            <p className="text-xl sm:text-2xl font-bold text-primary">{pkg.price}/pp</p>
             <p className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1">
               <Clock className="w-3 h-3" />
               {pkg.duration}
             </p>
           </div>
-          <Button size="sm" className="bg-primary hover:bg-primary/90 text-xs sm:text-sm px-3 sm:px-4">
-            View Details
-          </Button>
+          <Link href={`/packages/${pkg.slug}`}>
+            <Button size="sm" className="bg-primary hover:bg-primary/90 text-xs sm:text-sm px-3 sm:px-4 cursor-pointer">
+              Explore
+            </Button>
+          </Link>
         </div>
       </div>
     </div>
@@ -281,45 +208,67 @@ export default function PackagesSection() {
           </TabsList>
 
           <TabsContent value="international" className="mt-0">
-            <Carousel
-              setApi={setInternationalApi}
-              opts={{
-                align: "start",
-                loop: true,
-              }}
-              className="w-full"
-            >
-              <CarouselContent className="-ml-2 md:-ml-4">
-                {internationalPackages.map((pkg, index) => (
-                  <CarouselItem key={pkg.id} className="pl-2 md:pl-4 basis-full md:basis-1/2 lg:basis-1/4">
-                    <PackageCard pkg={pkg} index={index} />
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <CarouselPrevious className="hidden md:flex -left-12 border-border bg-background/80 backdrop-blur-sm hover:bg-background rounded-full" />
-              <CarouselNext className="hidden md:flex -right-12 border-border bg-background/80 backdrop-blur-sm hover:bg-background rounded-full" />
-            </Carousel>
+            {isLoading ? (
+              <div className="text-center py-16">
+                <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-4" />
+                <p className="text-muted-foreground">Loading international packages...</p>
+              </div>
+            ) : internationalPackages.length > 0 ? (
+              <Carousel
+                setApi={setInternationalApi}
+                opts={{
+                  align: "start",
+                  loop: true,
+                }}
+                className="w-full"
+              >
+                <CarouselContent className="-ml-2 md:-ml-4">
+                  {internationalPackages.map((pkg, index) => (
+                    <CarouselItem key={pkg.slug} className="pl-2 md:pl-4 basis-full md:basis-1/2 lg:basis-1/4">
+                      <PackageCard pkg={pkg} index={index} />
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselPrevious className="hidden md:flex -left-12 border-border bg-background/80 backdrop-blur-sm hover:bg-background rounded-full" />
+                <CarouselNext className="hidden md:flex -right-12 border-border bg-background/80 backdrop-blur-sm hover:bg-background rounded-full" />
+              </Carousel>
+            ) : (
+              <div className="text-center py-16">
+                <p className="text-muted-foreground">No international packages available.</p>
+              </div>
+            )}
           </TabsContent>
 
           <TabsContent value="domestic" className="mt-0">
-            <Carousel
-              setApi={setDomesticApi}
-              opts={{
-                align: "start",
-                loop: true,
-              }}
-              className="w-full"
-            >
-              <CarouselContent className="-ml-2 md:-ml-4">
-                {domesticPackages.map((pkg, index) => (
-                  <CarouselItem key={pkg.id} className="pl-2 md:pl-4 basis-full md:basis-1/2 lg:basis-1/4">
-                    <PackageCard pkg={pkg} index={index} />
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <CarouselPrevious className="hidden md:flex -left-12 border-border bg-background/80 backdrop-blur-sm hover:bg-background rounded-full" />
-              <CarouselNext className="hidden md:flex -right-12 border-border bg-background/80 backdrop-blur-sm hover:bg-background rounded-full" />
-            </Carousel>
+            {isLoading ? (
+              <div className="text-center py-16">
+                <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-4" />
+                <p className="text-muted-foreground">Loading domestic packages...</p>
+              </div>
+            ) : domesticPackages.length > 0 ? (
+              <Carousel
+                setApi={setDomesticApi}
+                opts={{
+                  align: "start",
+                  loop: true,
+                }}
+                className="w-full"
+              >
+                <CarouselContent className="-ml-2 md:-ml-4">
+                  {domesticPackages.map((pkg, index) => (
+                    <CarouselItem key={pkg.slug} className="pl-2 md:pl-4 basis-full md:basis-1/2 lg:basis-1/4">
+                      <PackageCard pkg={pkg} index={index} />
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselPrevious className="hidden md:flex -left-12 border-border bg-background/80 backdrop-blur-sm hover:bg-background rounded-full" />
+                <CarouselNext className="hidden md:flex -right-12 border-border bg-background/80 backdrop-blur-sm hover:bg-background rounded-full" />
+              </Carousel>
+            ) : (
+              <div className="text-center py-16">
+                <p className="text-muted-foreground">No domestic packages available.</p>
+              </div>
+            )}
           </TabsContent>
         </Tabs>
 

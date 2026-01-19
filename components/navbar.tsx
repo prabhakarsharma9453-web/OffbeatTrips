@@ -3,13 +3,15 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Menu, X, MapPin } from "lucide-react"
+import { useSession, signOut } from "next-auth/react"
+import { Menu, X, MapPin, Shield, LogOut, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const pathname = usePathname()
+  const { data: session } = useSession()
 
   useEffect(() => {
     const handleScroll = () => {
@@ -81,14 +83,43 @@ export default function Navbar() {
 
           {/* Auth Buttons */}
           <div className="hidden md:flex items-center gap-3">
-            <Link href="/login">
-              <Button variant="ghost" className="text-white hover:text-white hover:bg-white/10">
-                Login
-              </Button>
-            </Link>
-            <Link href="/signup">
-              <Button className="bg-primary hover:bg-primary/90 text-white">Sign Up</Button>
-            </Link>
+            {session ? (
+              <>
+                <Link href="/dashboard">
+                  <Button variant="ghost" className="text-white hover:text-white hover:bg-white/10">
+                    <User className="w-4 h-4 mr-2" />
+                    Dashboard
+                  </Button>
+                </Link>
+                {session.user.role === "admin" && (
+                  <Link href="/admin">
+                    <Button variant="ghost" className="text-white hover:text-white hover:bg-white/10">
+                      <Shield className="w-4 h-4 mr-2" />
+                      Admin
+                    </Button>
+                  </Link>
+                )}
+                <Button
+                  variant="ghost"
+                  className="text-white hover:text-white hover:bg-white/10"
+                  onClick={() => signOut({ callbackUrl: "/" })}
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <>
+                <Link href="/login">
+                  <Button variant="ghost" className="text-white hover:text-white hover:bg-white/10">
+                    Login
+                  </Button>
+                </Link>
+                <Link href="/signup">
+                  <Button className="bg-primary hover:bg-primary/90 text-white">Sign Up</Button>
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -121,14 +152,46 @@ export default function Navbar() {
                   ))}
                 </div>
                 <div className="pt-4 border-t border-border space-y-3 pb-6">
-                  <Link href="/login" className="block" onClick={() => setIsMobileMenuOpen(false)}>
-                    <Button variant="outline" className="w-full border-white/20 text-white bg-transparent hover:bg-white/10">
-                      Login
-                    </Button>
-                  </Link>
-                  <Link href="/signup" className="block" onClick={() => setIsMobileMenuOpen(false)}>
-                    <Button className="w-full bg-primary hover:bg-primary/90">Sign Up</Button>
-                  </Link>
+                  {session ? (
+                    <>
+                      <Link href="/dashboard" className="block" onClick={() => setIsMobileMenuOpen(false)}>
+                        <Button variant="outline" className="w-full border-white/20 text-white bg-transparent hover:bg-white/10">
+                          <User className="w-4 h-4 mr-2" />
+                          Dashboard
+                        </Button>
+                      </Link>
+                      {session.user.role === "admin" && (
+                        <Link href="/admin" className="block" onClick={() => setIsMobileMenuOpen(false)}>
+                          <Button variant="outline" className="w-full border-white/20 text-white bg-transparent hover:bg-white/10">
+                            <Shield className="w-4 h-4 mr-2" />
+                            Admin
+                          </Button>
+                        </Link>
+                      )}
+                      <Button
+                        variant="outline"
+                        className="w-full border-white/20 text-white bg-transparent hover:bg-white/10"
+                        onClick={() => {
+                          setIsMobileMenuOpen(false)
+                          signOut({ callbackUrl: "/" })
+                        }}
+                      >
+                        <LogOut className="w-4 h-4 mr-2" />
+                        Logout
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Link href="/login" className="block" onClick={() => setIsMobileMenuOpen(false)}>
+                        <Button variant="outline" className="w-full border-white/20 text-white bg-transparent hover:bg-white/10">
+                          Login
+                        </Button>
+                      </Link>
+                      <Link href="/signup" className="block" onClick={() => setIsMobileMenuOpen(false)}>
+                        <Button className="w-full bg-primary hover:bg-primary/90">Sign Up</Button>
+                      </Link>
+                    </>
+                  )}
                 </div>
               </div>
             </div>

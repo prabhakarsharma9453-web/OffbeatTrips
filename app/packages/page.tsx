@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
-import { MapPin, Clock, Star, ArrowRight, Search, Filter, Sparkles, Quote } from "lucide-react"
+import { MapPin, Clock, Star, ArrowRight, Search, Filter, Sparkles, Quote, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
@@ -30,138 +30,21 @@ const budgetRanges = [
   { label: "Over $2,500", value: "over-2500" },
 ]
 
-const allPackages = [
-  {
-    id: 1,
-    title: "Swiss Alps Explorer",
-    location: "Switzerland",
-    duration: "7 Days",
-    price: "$2,499",
-    rating: 4.9,
-    image: "/swiss-alps-mountains-snow-travel.jpg",
-    highlights: ["Mountain Hiking", "Scenic Train", "Glacier Walk"],
-    mood: "Adventure",
-    activities: ["Hiking", "Skiing", "Sightseeing"],
-    type: "international",
-  },
-  {
-    id: 2,
-    title: "Norwegian Fjords",
-    location: "Norway",
-    duration: "6 Days",
-    price: "$2,199",
-    rating: 4.8,
-    image: "/norway-fjords-beautiful-water-mountains.jpg",
-    highlights: ["Fjord Cruise", "Northern Lights", "Ice Climbing"],
-    mood: "Adventure",
-    activities: ["Hiking", "Wildlife", "Photography"],
-    type: "international",
-  },
-  {
-    id: 3,
-    title: "Thailand Paradise",
-    location: "Thailand",
-    duration: "5 Days",
-    price: "$1,299",
-    rating: 4.7,
-    image: "/thailand-beach-islands-tropical-paradise.jpg",
-    highlights: ["Island Hopping", "Snorkeling", "Thai Cuisine"],
-    mood: "Relaxation",
-    activities: ["Swimming", "Water Sports", "Sightseeing"],
-    type: "international",
-  },
-  {
-    id: 4,
-    title: "Ladakh Adventure",
-    location: "Ladakh, India",
-    duration: "8 Days",
-    price: "₹45,999",
-    rating: 4.9,
-    image: "/ladakh-mountains-pangong-lake-adventure.jpg",
-    highlights: ["Pangong Lake", "Nubra Valley", "Monastery Tour"],
-    mood: "Adventure",
-    activities: ["Hiking", "Camping", "Photography"],
-    type: "domestic",
-  },
-  {
-    id: 5,
-    title: "Kerala Backwaters",
-    location: "Kerala, India",
-    duration: "5 Days",
-    price: "₹28,999",
-    rating: 4.8,
-    image: "/kerala-backwaters-houseboat-beautiful-nature.jpg",
-    highlights: ["Houseboat Stay", "Ayurveda Spa", "Tea Plantations"],
-    mood: "Relaxation",
-    activities: ["Sightseeing", "Wildlife", "Photography"],
-    type: "domestic",
-  },
-  {
-    id: 6,
-    title: "Manali Expedition",
-    location: "Himachal Pradesh",
-    duration: "4 Days",
-    price: "₹18,999",
-    rating: 4.7,
-    image: "/manali-mountains-snow-adventure-himachal.jpg",
-    highlights: ["Solang Valley", "Rohtang Pass", "River Rafting"],
-    mood: "Adventure",
-    activities: ["Hiking", "Skiing", "Water Sports"],
-    type: "domestic",
-  },
-  {
-    id: 7,
-    title: "Maldives Luxury Escape",
-    location: "Maldives",
-    duration: "6 Days",
-    price: "$3,499",
-    rating: 4.9,
-    image: "/thailand-beach-islands-tropical-paradise.jpg",
-    highlights: ["Private Villa", "Crystal Clear Waters", "Spa Retreat"],
-    mood: "Luxury",
-    activities: ["Swimming", "Water Sports", "Photography"],
-    type: "international",
-  },
-  {
-    id: 8,
-    title: "Paris Romance",
-    location: "France",
-    duration: "5 Days",
-    price: "$2,799",
-    rating: 4.8,
-    image: "/coastal-hiking-beach-cliffs-adventure.jpg",
-    highlights: ["Eiffel Tower", "Louvre Museum", "Fine Dining"],
-    mood: "Romance",
-    activities: ["Sightseeing", "Photography"],
-    type: "international",
-  },
-  {
-    id: 9,
-    title: "Goa Family Fun",
-    location: "Goa, India",
-    duration: "4 Days",
-    price: "₹22,999",
-    rating: 4.6,
-    image: "/thailand-beach-islands-tropical-paradise.jpg",
-    highlights: ["Beach Activities", "Water Sports", "Local Cuisine"],
-    mood: "Family",
-    activities: ["Swimming", "Water Sports", "Sightseeing"],
-    type: "domestic",
-  },
-  {
-    id: 10,
-    title: "Rajasthan Cultural Journey",
-    location: "Rajasthan, India",
-    duration: "6 Days",
-    price: "₹35,999",
-    rating: 4.9,
-    image: "/ladakh-mountains-pangong-lake-adventure.jpg",
-    highlights: ["Palaces", "Desert Safari", "Cultural Shows"],
-    mood: "Cultural",
-    activities: ["Sightseeing", "Photography", "Wildlife"],
-    type: "domestic",
-  },
-]
+interface Package {
+  id: string
+  slug: string
+  title: string
+  location: string
+  country: string
+  duration: string
+  price: string
+  rating: number
+  reviewCount: number
+  image: string
+  highlights: string[]
+  activities: string[]
+  type: 'domestic' | 'international'
+}
 
 export default function AllPackagesPage() {
   const [isVisible, setIsVisible] = useState(false)
@@ -172,6 +55,33 @@ export default function AllPackagesPage() {
   const [activeTab, setActiveTab] = useState<"all" | "international" | "domestic">("all")
   const sectionRef = useRef<HTMLElement>(null)
   const [currentQuote, setCurrentQuote] = useState(inspirationalQuotes[0])
+  const [allPackages, setAllPackages] = useState<Package[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  // Fetch packages from MongoDB
+  useEffect(() => {
+    const fetchPackages = async () => {
+      try {
+        setIsLoading(true)
+        const response = await fetch('/api/packages')
+        const result = await response.json()
+
+        if (result.success) {
+          setAllPackages(result.data || [])
+        } else {
+          console.error('Error fetching packages:', result.error)
+          setAllPackages([])
+        }
+      } catch (error) {
+        console.error('Error fetching packages:', error)
+        setAllPackages([])
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchPackages()
+  }, [])
 
   useEffect(() => {
     setIsVisible(true)
@@ -190,8 +100,8 @@ export default function AllPackagesPage() {
   const filteredPackages = allPackages.filter((pkg) => {
     const matchesTab =
       activeTab === "all" || (activeTab === "international" && pkg.type === "international") || (activeTab === "domestic" && pkg.type === "domestic")
-    const matchesMood = !selectedMood || pkg.mood === selectedMood
-    const matchesActivity = !selectedActivity || pkg.activities.includes(selectedActivity)
+    const matchesMood = !selectedMood // Mood not in database yet, skip filter
+    const matchesActivity = !selectedActivity || (pkg.activities && Array.isArray(pkg.activities) && pkg.activities.includes(selectedActivity))
     const matchesSearch = !searchQuery || pkg.title.toLowerCase().includes(searchQuery.toLowerCase()) || pkg.location.toLowerCase().includes(searchQuery.toLowerCase())
     
     // Budget filter logic
@@ -243,7 +153,7 @@ export default function AllPackagesPage() {
     return matchesTab && matchesMood && matchesActivity && matchesSearch && matchesBudget
   })
 
-  const PackageCard = ({ pkg, index }: { pkg: (typeof allPackages)[0]; index: number }) => (
+  const PackageCard = ({ pkg, index }: { pkg: Package; index: number }) => (
     <div
       className={`group bg-card rounded-3xl overflow-hidden border border-border hover:border-primary/50 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/20 ${
         isVisible ? "animate-fade-in-up" : "opacity-0"
@@ -260,9 +170,6 @@ export default function AllPackagesPage() {
         <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-1.5 z-10">
           <Star className="w-4 h-4 text-accent fill-accent" />
           <span className="text-white text-sm font-semibold">{pkg.rating}</span>
-        </div>
-        <div className="absolute top-4 left-4 bg-primary/90 backdrop-blur-sm px-3 py-1.5 rounded-full z-10">
-          <span className="text-white text-xs font-medium">{pkg.mood}</span>
         </div>
       </div>
       <div className="p-6">
@@ -291,12 +198,14 @@ export default function AllPackagesPage() {
               {pkg.duration}
             </p>
           </div>
-          <Button
-            size="sm"
-            className="bg-primary hover:bg-primary/90 rounded-full px-6 transition-all duration-300 hover:scale-105"
-          >
-            View Details
-          </Button>
+          <Link href={`/packages/${pkg.slug}`}>
+            <Button
+              size="sm"
+              className="bg-primary hover:bg-primary/90 rounded-full px-6 transition-all duration-300 hover:scale-105"
+            >
+              Explore
+            </Button>
+          </Link>
         </div>
       </div>
     </div>
@@ -437,14 +346,25 @@ export default function AllPackagesPage() {
             </p>
           </div>
 
+          {/* Loading State */}
+          {isLoading && (
+            <div className="text-center py-16">
+              <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-4" />
+              <p className="text-muted-foreground text-lg">Loading packages...</p>
+            </div>
+          )}
+
           {/* Packages Grid */}
-          {filteredPackages.length > 0 ? (
+          {!isLoading && filteredPackages.length > 0 && (
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
               {filteredPackages.map((pkg, index) => (
-                <PackageCard key={pkg.id} pkg={pkg} index={index} />
+                <PackageCard key={pkg.slug || pkg.id} pkg={pkg} index={index} />
               ))}
             </div>
-          ) : (
+          )}
+
+          {/* No Results */}
+          {!isLoading && filteredPackages.length === 0 && (
             <div className="text-center py-16">
               <p className="text-muted-foreground text-lg">No packages found matching your criteria.</p>
               <Button
