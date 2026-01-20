@@ -11,7 +11,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel"
 
-const testimonials = [
+const fallbackTestimonials = [
   {
     id: 1,
     name: "Sarah Johnson",
@@ -68,11 +68,14 @@ const testimonials = [
   },
 ]
 
+type TestimonialItem = (typeof fallbackTestimonials)[0] & { id?: string }
+
 export default function TestimonialsSection() {
   const [isVisible, setIsVisible] = useState(false)
   const [api, setApi] = useState<any>(null)
   const [isMobile, setIsMobile] = useState(false)
   const sectionRef = useRef<HTMLElement>(null)
+  const [items, setItems] = useState<TestimonialItem[]>(fallbackTestimonials)
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -89,6 +92,22 @@ export default function TestimonialsSection() {
     }
 
     return () => observer.disconnect()
+  }, [])
+
+  // Load testimonials from API
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await fetch("/api/testimonials")
+        const json = await res.json()
+        if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+          setItems(json.data)
+        }
+      } catch (error) {
+        console.error("Error loading testimonials:", error)
+      }
+    }
+    load()
   }, [])
 
   // Check if mobile
@@ -116,7 +135,7 @@ export default function TestimonialsSection() {
     return () => clearInterval(interval)
   }, [api, isMobile])
 
-  const TestimonialCard = ({ testimonial, index }: { testimonial: (typeof testimonials)[0]; index: number }) => (
+  const TestimonialCard = ({ testimonial, index }: { testimonial: TestimonialItem; index: number }) => (
     <div
       className={`group relative bg-gradient-to-br from-card to-card/80 backdrop-blur-sm rounded-3xl overflow-hidden border border-border/50 hover:border-primary/50 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/20 p-4 sm:p-5 lg:p-6 h-full ${
         isVisible ? "animate-fade-in-up" : "opacity-0"
@@ -128,7 +147,7 @@ export default function TestimonialsSection() {
       </div>
       <div className="relative z-10">
         <div className="flex items-center gap-1 mb-2 sm:mb-3">
-          {[...Array(testimonial.rating)].map((_, i) => (
+            {[...Array(testimonial.rating)].map((_, i) => (
             <Star key={i} className="w-3.5 sm:w-4 h-3.5 sm:h-4 text-accent fill-accent" />
           ))}
         </div>
@@ -176,7 +195,7 @@ export default function TestimonialsSection() {
           className="w-full"
         >
           <CarouselContent className="-ml-2 md:-ml-4">
-            {testimonials.map((testimonial, index) => (
+            {items.map((testimonial, index) => (
               <CarouselItem key={testimonial.id} className="pl-2 md:pl-4 basis-full md:basis-1/2 lg:basis-1/3">
                 <TestimonialCard testimonial={testimonial} index={index} />
               </CarouselItem>

@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
-import { Loader2, Shield, Hotel, Users, Package, ArrowLeft, MapPin, Globe, LogOut } from "lucide-react"
+import { Loader2, Shield, Hotel, Users, Package, ArrowLeft, MapPin, Globe, LogOut, Quote, BookOpen } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import ResortForm from "@/components/admin/resort-form"
@@ -15,6 +15,8 @@ import UsersManagement from "@/components/admin/users-management"
 import TripForm from "@/components/admin/trip-form"
 import DestinationForm from "@/components/admin/destination-form"
 import DestinationTripsForm from "@/components/admin/destination-trips-form"
+import TestimonialsForm from "@/components/admin/testimonials-form"
+import StoriesForm from "@/components/admin/stories-form"
 
 export default function AdminDashboard() {
   const { data: session, status } = useSession()
@@ -121,12 +123,26 @@ export default function AdminDashboard() {
                     <Users className="w-4 h-4 flex-shrink-0" />
                     <span className="whitespace-nowrap">Users</span>
                   </TabsTrigger>
+                  <TabsTrigger 
+                    value="testimonials" 
+                    className="flex items-center justify-center gap-2 text-sm font-semibold px-5 py-3 flex-shrink-0 min-w-[130px] h-11"
+                  >
+                    <Quote className="w-4 h-4 flex-shrink-0" />
+                    <span className="whitespace-nowrap">Reviews</span>
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="stories" 
+                    className="flex items-center justify-center gap-2 text-sm font-semibold px-5 py-3 flex-shrink-0 min-w-[130px] h-11"
+                  >
+                    <BookOpen className="w-4 h-4 flex-shrink-0" />
+                    <span className="whitespace-nowrap">Stories</span>
+                  </TabsTrigger>
                 </TabsList>
               </div>
               
               {/* Desktop: Grid layout */}
               <div className="hidden md:block">
-                <TabsList className="grid w-full max-w-4xl grid-cols-5 h-auto p-2 gap-3 bg-muted/80 backdrop-blur-sm border border-border/50 shadow-lg">
+                <TabsList className="grid w-full max-w-5xl grid-cols-7 h-auto p-2 gap-3 bg-muted/80 backdrop-blur-sm border border-border/50 shadow-lg">
                   <TabsTrigger 
                     value="resorts" 
                     className="flex items-center justify-center gap-2 text-sm font-medium px-4 py-3 h-12"
@@ -162,6 +178,20 @@ export default function AdminDashboard() {
                     <Users className="w-4 h-4 flex-shrink-0" />
                     <span>Users</span>
                   </TabsTrigger>
+                  <TabsTrigger 
+                    value="testimonials" 
+                    className="flex items-center justify-center gap-2 text-sm font-medium px-4 py-3 h-12"
+                  >
+                    <Quote className="w-4 h-4 flex-shrink-0" />
+                    <span>Reviews</span>
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="stories" 
+                    className="flex items-center justify-center gap-2 text-sm font-medium px-4 py-3 h-12"
+                  >
+                    <BookOpen className="w-4 h-4 flex-shrink-0" />
+                    <span>Stories</span>
+                  </TabsTrigger>
                 </TabsList>
               </div>
             </div>
@@ -191,6 +221,14 @@ export default function AdminDashboard() {
               <div className="w-full overflow-x-hidden">
                 <UsersManagement />
               </div>
+            </TabsContent>
+
+            <TabsContent value="testimonials">
+              <TestimonialsForm />
+            </TabsContent>
+
+            <TabsContent value="stories">
+              <StoriesForm />
             </TabsContent>
           </Tabs>
         </div>
