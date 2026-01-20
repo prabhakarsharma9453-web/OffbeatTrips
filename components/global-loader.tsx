@@ -18,7 +18,7 @@ export default function GlobalLoader() {
     if (typeof window !== "undefined") {
       if (document.readyState === "complete") {
         // Page already loaded
-        setTimeout(hideLoader, 800) // Minimum display time
+        setTimeout(hideLoader, 1500) // Minimum display time
       } else {
         window.addEventListener("load", hideLoader)
       }
