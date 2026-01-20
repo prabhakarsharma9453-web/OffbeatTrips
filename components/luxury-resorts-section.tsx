@@ -203,10 +203,9 @@ export default function LuxuryResortsSection() {
           </p>
         </div>
 
-        <Tabs defaultValue="international" className="w-full">
+        <Tabs defaultValue="domestic" className="w-full">
           <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-6 sm:mb-8 lg:mb-8 bg-muted rounded-full">
-            
-          <TabsTrigger
+            <TabsTrigger
               value="domestic"
               className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-white rounded-full transition-all duration-300"
             >
@@ -220,7 +219,6 @@ export default function LuxuryResortsSection() {
               <Globe className="w-4 h-4" />
               International
             </TabsTrigger>
-          
           </TabsList>
 
           <TabsContent value="international" className="mt-0">

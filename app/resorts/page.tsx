@@ -44,7 +44,7 @@ export default function AllResortsPage() {
   const [locations, setLocations] = useState<string[]>(["All Locations"])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [activeTab, setActiveTab] = useState<"all" | "international" | "domestic">("all")
+  const [activeTab, setActiveTab] = useState<"all" | "international" | "domestic">("domestic")
 
   // Fetch resorts from MongoDB
   useEffect(() => {

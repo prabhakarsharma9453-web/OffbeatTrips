@@ -52,7 +52,7 @@ export default function AllPackagesPage() {
   const [selectedActivity, setSelectedActivity] = useState<string | null>(null)
   const [selectedBudget, setSelectedBudget] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
-  const [activeTab, setActiveTab] = useState<"all" | "international" | "domestic">("all")
+  const [activeTab, setActiveTab] = useState<"all" | "international" | "domestic">("domestic")
   const sectionRef = useRef<HTMLElement>(null)
   const [currentQuote, setCurrentQuote] = useState(inspirationalQuotes[0])
   const [allPackages, setAllPackages] = useState<Package[]>([])

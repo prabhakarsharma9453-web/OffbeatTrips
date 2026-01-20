@@ -146,7 +146,7 @@ export default function Navbar() {
             />
             {/* Mobile Menu */}
             <div className="md:hidden fixed top-20 left-0 right-0 bottom-0 bg-background z-50 overflow-y-auto animate-fade-in-up">
-              <div className="px-4 py-6 space-y-4 h-full flex flex-col">
+              <div className="px-4 py-6 space-y-4 h-full flex flex-col pb-28 md:pb-6">
                 <div className="flex-1">
                   {navLinks.map((link) => (
                     <Link
@@ -159,7 +159,7 @@ export default function Navbar() {
                     </Link>
                   ))}
                 </div>
-                <div className="pt-4 border-t border-border space-y-3 pb-6">
+                <div className="pt-4 border-t border-border space-y-3">
                   {session ? (
                     <>
                       <Link href="/dashboard" className="block" onClick={() => setIsMobileMenuOpen(false)}>
