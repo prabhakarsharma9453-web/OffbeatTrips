@@ -112,7 +112,7 @@ export default function ContactSection() {
                   </div>
                   <div>
                     <p className="text-white text-sm sm:text-base font-medium">Email Us</p>
-                    <p className="text-muted-foreground text-xs sm:text-sm">hello@offbeattrips.com</p>
+                    <p className="text-muted-foreground text-xs sm:text-sm">ops@offbeattrips.in</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3 sm:gap-4">
@@ -121,7 +121,7 @@ export default function ContactSection() {
                   </div>
                   <div>
                     <p className="text-white text-sm sm:text-base font-medium">Call Us</p>
-                    <p className="text-muted-foreground text-xs sm:text-sm">+1 (555) 123-4567</p>
+                    <p className="text-muted-foreground text-xs sm:text-sm">+91 85888 55935</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3 sm:gap-4">
@@ -130,7 +130,7 @@ export default function ContactSection() {
                   </div>
                   <div>
                     <p className="text-white text-sm sm:text-base font-medium">Visit Us</p>
-                    <p className="text-muted-foreground text-xs sm:text-sm">123 Adventure Street, Travel City, TC 12345</p>
+                    <p className="text-muted-foreground text-xs sm:text-sm">Workpods India, Plot No. 93, Sector 44, Gurugram, Haryana- 122003</p>
                   </div>
                 </div>
               </div>
@@ -196,7 +196,7 @@ export default function ContactSection() {
                   id="phone"
                   name="phone"
                   type="tel"
-                  placeholder="+91 911148444"
+                  placeholder="+91 85888 55935"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                   className="bg-background border-border text-white"

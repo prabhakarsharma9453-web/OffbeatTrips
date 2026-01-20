@@ -4,26 +4,26 @@ import { MapPin, Facebook, Instagram, Twitter, Youtube } from "lucide-react"
 export default function Footer() {
   const quickLinks = [
     { name: "Home", href: "/" },
-    { name: "About Us", href: "/#about" },
+    { name: "About Us", href: "/about" },
     { name: "Destinations", href: "/destinations/international" },
     { name: "Packages", href: "/packages" },
     { name: "Blog", href: "/#blog" },
   ]
 
   const activityLinks = [
-    { name: "Hiking", href: "/#activities" },
-    { name: "Camping", href: "/#activities" },
-    { name: "Water Sports", href: "/#activities" },
-    { name: "Paragliding", href: "/#activities" },
-    { name: "Skiing", href: "/#activities" },
+    { name: "Hiking", href: "/activities/hiking" },
+    { name: "Camping", href: "/activities/camping" },
+    { name: "Water Sports", href: "/activities/water-sports" },
+    { name: "Paragliding", href: "/activities/paragliding" },
+    { name: "Skiing", href: "/activities/skiing" },
   ]
 
   const supportLinks = [
-    { name: "Contact Us", href: "/#contact" },
-    { name: "FAQs", href: "/#faq" },
-    { name: "Privacy Policy", href: "/#privacy" },
-    { name: "Terms of Service", href: "/#terms" },
-    { name: "Refund Policy", href: "/#refund" },
+    { name: "Contact Us", href: "/contact" },
+    { name: "FAQs", href: "/faq" },
+    { name: "Privacy Policy", href: "/privacy" },
+    { name: "Terms of Service", href: "/terms" },
+    { name: "Refund Policy", href: "/refund" },
   ]
 
   const socialLinks = [

@@ -9,7 +9,6 @@ import ActivitiesSection from "@/components/activities-section"
 import LocationsSection from "@/components/locations-section"
 import TestimonialsSection from "@/components/testimonials-section"
 import BlogSection from "@/components/blog-section"
-import ContactSection from "@/components/contact-section"
 import Footer from "@/components/footer"
 
 export default function Home() {
@@ -29,10 +28,6 @@ export default function Home() {
       <LocationsSection />
       <TestimonialsSection />
       <BlogSection />
-      {/* Desktop: Contact Section visible, Mobile: Hidden */}
-      <div className="hidden md:block">
-        <ContactSection />
-      </div>
       <Footer />
     </main>
   )
