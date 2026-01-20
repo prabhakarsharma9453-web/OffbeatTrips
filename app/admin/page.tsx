@@ -1,12 +1,12 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useSession } from "next-auth/react"
+import { useSession, signOut } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
-import { Loader2, Shield, Hotel, Users, Package, ArrowLeft, MapPin, Globe } from "lucide-react"
+import { Loader2, Shield, Hotel, Users, Package, ArrowLeft, MapPin, Globe, LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import ResortForm from "@/components/admin/resort-form"
@@ -48,12 +48,22 @@ export default function AdminDashboard() {
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="mb-5 md:mb-8">
-            <Link href="/">
-              <Button variant="ghost" className="mb-4 md:mb-4 text-sm md:text-base h-9 md:h-10 -ml-2 md:ml-0">
-                <ArrowLeft className="w-4 h-4 md:w-4 md:h-4 mr-2" />
-                <span className="text-sm md:text-base">Back to Home</span>
+            <div className="flex items-center justify-between gap-4 mb-4 md:mb-4">
+              <Link href="/">
+                <Button variant="ghost" className="text-sm md:text-base h-9 md:h-10 -ml-2 md:ml-0">
+                  <ArrowLeft className="w-4 h-4 md:w-4 md:h-4 mr-2" />
+                  <span className="text-sm md:text-base">Back to Home</span>
+                </Button>
+              </Link>
+              <Button
+                variant="outline"
+                onClick={() => signOut({ callbackUrl: "/" })}
+                className="hover:bg-destructive hover:text-destructive-foreground border-destructive/30 text-destructive text-sm md:text-base h-9 md:h-10"
+              >
+                <LogOut className="w-4 h-4 md:w-4 md:h-4 mr-2" />
+                <span className="text-sm md:text-base">Logout</span>
               </Button>
-            </Link>
+            </div>
             <div className="flex items-center gap-3 md:gap-4 mb-3 md:mb-4">
               <div className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center flex-shrink-0 shadow-lg">
                 <Shield className="w-6 h-6 md:w-7 md:h-7 text-white" />

@@ -672,13 +672,13 @@ export default function TripForm() {
 
             <div>
               <label className="text-sm font-medium text-white mb-2 block">
-                Highlights (JSON array or comma-separated)
+                Highlights 
               </label>
               <Textarea
                 value={formData.highlights}
                 onChange={(e) => setFormData({ ...formData, highlights: e.target.value })}
                 rows={3}
-                placeholder='["Highlight 1", "Highlight 2"] or Highlight 1, Highlight 2'
+                placeholder='  Highlight 1, Highlight 2'
               />
             </div>
 

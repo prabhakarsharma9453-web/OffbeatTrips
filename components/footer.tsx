@@ -114,9 +114,16 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 pt-8 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p className="text-muted-foreground text-sm">© 2026 OffbeatTrips. All rights reserved.</p>
-          <p className="text-muted-foreground text-sm">Made with ❤️ for adventurers worldwide</p>
+        <div className="mt-12 pt-8 border-t border-border space-y-4">
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-2">
+            <p className="text-muted-foreground text-sm text-center">
+              Secure Payments Powered by <span className="text-white font-semibold">Airpay</span>, <span className="text-white font-semibold">Razorpay</span> and <span className="text-white font-semibold">PhonePe</span>.
+            </p>
+          </div>
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+            <p className="text-muted-foreground text-sm">© 2026 OffbeatTrips. All rights reserved.</p>
+            <p className="text-muted-foreground text-sm">Made with ❤️ for adventurers worldwide</p>
+          </div>
         </div>
       </div>
     </footer>

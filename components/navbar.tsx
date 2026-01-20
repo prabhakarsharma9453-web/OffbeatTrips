@@ -3,8 +3,8 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { useSession, signOut } from "next-auth/react"
-import { Menu, X, MapPin, Shield, LogOut, User } from "lucide-react"
+import { useSession } from "next-auth/react"
+import { Menu, X, MapPin, Shield, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 export default function Navbar() {
@@ -99,14 +99,6 @@ export default function Navbar() {
                     </Button>
                   </Link>
                 )}
-                <Button
-                  variant="ghost"
-                  className="text-white hover:text-white hover:bg-white/10"
-                  onClick={() => signOut({ callbackUrl: "/" })}
-                >
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Logout
-                </Button>
               </>
             ) : (
               <>
@@ -168,17 +160,6 @@ export default function Navbar() {
                           </Button>
                         </Link>
                       )}
-                      <Button
-                        variant="outline"
-                        className="w-full border-white/20 text-white bg-transparent hover:bg-white/10"
-                        onClick={() => {
-                          setIsMobileMenuOpen(false)
-                          signOut({ callbackUrl: "/" })
-                        }}
-                      >
-                        <LogOut className="w-4 h-4 mr-2" />
-                        Logout
-                      </Button>
                     </>
                   ) : (
                     <>
