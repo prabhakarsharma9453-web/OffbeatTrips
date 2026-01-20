@@ -89,7 +89,7 @@ export async function PUT(
     } else if (existing.image) {
       imagesArray = [String(existing.image).trim()].filter(Boolean)
     }
-    const mainImage = imagesArray[0] || ''
+    const mainImage = imagesArray[0] || existing.image || '/placeholder.svg'
 
     if (!finalTitle) {
       return NextResponse.json({ success: false, error: 'Title is required' }, { status: 400 })
@@ -106,10 +106,6 @@ export async function PUT(
     if (!price && !existing.price) {
       return NextResponse.json({ success: false, error: 'Price is required' }, { status: 400 })
     }
-    if (!mainImage) {
-      return NextResponse.json({ success: false, error: 'At least one image is required' }, { status: 400 })
-    }
-
     const updated = await Trip.findByIdAndUpdate(
       tripId,
       {

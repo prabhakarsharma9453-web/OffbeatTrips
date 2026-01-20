@@ -142,11 +142,22 @@ export async function PUT(
       }
     }
 
+    // If no images were provided, keep existing image or fallback to placeholder
     if (!mainImage || imagesArray.length === 0) {
-      return NextResponse.json(
-        { success: false, error: 'At least one image is required' },
-        { status: 400 }
-      )
+      const existingPackage = await Package.findById(packageId).lean()
+      const existingImages = (existingPackage?.images as string[]) || []
+      const existingImage = (existingPackage?.image as string) || ''
+
+      if (existingImages.length > 0) {
+        imagesArray = existingImages.filter((img) => img && img.trim())
+        mainImage = imagesArray[0] || existingImage || '/placeholder.svg'
+      } else if (existingImage) {
+        mainImage = existingImage
+        imagesArray = [existingImage]
+      } else {
+        mainImage = '/placeholder.svg'
+        imagesArray = []
+      }
     }
 
     // Normalize array fields to ensure they're arrays of strings

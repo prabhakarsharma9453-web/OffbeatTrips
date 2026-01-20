@@ -86,9 +86,6 @@ export async function POST(request: NextRequest) {
     if (!country || !String(country).trim()) {
       return NextResponse.json({ success: false, error: 'Country/Region label is required' }, { status: 400 })
     }
-    if (!image || !String(image).trim()) {
-      return NextResponse.json({ success: false, error: 'Image is required' }, { status: 400 })
-    }
 
     const requestedSlug = slug && String(slug).trim() ? String(slug).trim() : String(name)
     const finalSlug = await generateUniqueSlug(requestedSlug)
@@ -100,7 +97,7 @@ export async function POST(request: NextRequest) {
       name: String(name).trim(),
       country: String(country).trim(),
       trips: Number(trips) || 0,
-      image: String(image).trim(),
+      image: String(image || '/placeholder.svg').trim(),
       slug: finalSlug,
       isPopular: isPopular !== undefined ? Boolean(isPopular) : true,
       order: order ? parseInt(String(order), 10) : 0,

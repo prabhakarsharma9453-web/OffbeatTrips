@@ -160,7 +160,8 @@ export async function POST(request: Request) {
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/(^-|-$)/g, '')
 
-    // Handle images: prioritize images array, fallback to image string
+    // Handle images: prioritize images array, fallback to image string.
+    // Images are optional - if none provided, we fall back to a placeholder.
     let mainImage = ''
     let imagesArray: string[] = []
 
@@ -172,11 +173,9 @@ export async function POST(request: Request) {
       imagesArray = [mainImage]
     }
 
-    if (!mainImage || imagesArray.length === 0) {
-      return NextResponse.json(
-        { success: false, error: 'At least one image is required' },
-        { status: 400 }
-      )
+    if (!mainImage) {
+      mainImage = '/placeholder.svg'
+      imagesArray = []
     }
 
     // Normalize array fields to ensure they're arrays of strings

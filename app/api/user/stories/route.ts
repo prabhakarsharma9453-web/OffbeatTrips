@@ -80,9 +80,6 @@ export async function POST(request: Request) {
     if (!content || !String(content).trim()) {
       return NextResponse.json({ success: false, error: 'Story content is required' }, { status: 400 })
     }
-    if (!image || !String(image).trim()) {
-      return NextResponse.json({ success: false, error: 'Image is required' }, { status: 400 })
-    }
 
     await connectDB()
 
@@ -110,7 +107,7 @@ export async function POST(request: Request) {
       slug: finalSlug,
       excerpt: finalExcerpt,
       content: finalContent,
-      image: String(image).trim(),
+      image: image && String(image).trim() ? String(image).trim() : '',
       category: category && String(category).trim() ? String(category).trim() : 'Travel',
       readTimeMinutes: calcReadTimeMinutes(finalContent),
       authorId: session.user.id,

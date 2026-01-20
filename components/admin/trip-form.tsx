@@ -341,12 +341,6 @@ export default function TripForm() {
         setIsSaving(false)
         return
       }
-      if (allImages.length === 0) {
-        toast({ title: "Validation Error", description: "At least one image is required", variant: "destructive" })
-        setIsSaving(false)
-        return
-      }
-
       const payload = {
         slug: formData.slug.trim() || undefined,
         title: formData.title.trim(),

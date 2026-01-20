@@ -120,17 +120,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Price is required' }, { status: 400 })
     }
 
-    // Images
+    // Images (optional, fallback to placeholder)
     let imagesArray: string[] = []
     if (images && Array.isArray(images) && images.length > 0) {
       imagesArray = images.map((v: any) => String(v).trim()).filter(Boolean)
     } else if (image) {
       imagesArray = [String(image).trim()].filter(Boolean)
     }
-    const mainImage = imagesArray[0] || ''
-    if (!mainImage) {
-      return NextResponse.json({ success: false, error: 'At least one image is required' }, { status: 400 })
-    }
+    let mainImage = imagesArray[0] || '/placeholder.svg'
 
     const finalSlug = slug && String(slug).trim()
       ? slugify(String(slug))

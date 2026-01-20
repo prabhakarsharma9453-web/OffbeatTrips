@@ -99,14 +99,14 @@ export async function POST(request: NextRequest) {
 
     const finalSlug = (slug && String(slug).trim()) ? slugify(String(slug)) : slugify(String(title || ''))
 
-    // Images: prefer array, fallback to single image
+    // Images: prefer array, fallback to single image. Optional – fallback to placeholder when empty.
     let imagesArray: string[] = []
     if (images && Array.isArray(images) && images.length > 0) {
       imagesArray = images.map((v: any) => String(v).trim()).filter(Boolean)
     } else if (image) {
       imagesArray = [String(image).trim()].filter(Boolean)
     }
-    const mainImage = imagesArray[0] || ''
+    const mainImage = imagesArray[0] || '/placeholder.svg'
 
     if (!title || !String(title).trim()) {
       return NextResponse.json({ success: false, error: 'Title is required' }, { status: 400 })
@@ -122,9 +122,6 @@ export async function POST(request: NextRequest) {
     }
     if (!price || !String(price).trim()) {
       return NextResponse.json({ success: false, error: 'Price is required' }, { status: 400 })
-    }
-    if (!mainImage) {
-      return NextResponse.json({ success: false, error: 'At least one image is required' }, { status: 400 })
     }
     if (!finalSlug) {
       return NextResponse.json({ success: false, error: 'Slug could not be generated' }, { status: 400 })

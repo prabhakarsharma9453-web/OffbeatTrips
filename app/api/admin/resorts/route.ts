@@ -147,11 +147,10 @@ export async function POST(request: NextRequest) {
       imagesArray = [mainImage]
     }
 
-    if (!mainImage || imagesArray.length === 0) {
-      return NextResponse.json(
-        { success: false, error: 'At least one image is required' },
-        { status: 400 }
-      )
+    // Images are optional; if none provided, use placeholder
+    if (!mainImage) {
+      mainImage = '/placeholder.svg'
+      imagesArray = []
     }
 
     console.log('Saving resort with images:', {
@@ -161,14 +160,6 @@ export async function POST(request: NextRequest) {
       receivedImages: Images,
       receivedImage: Image
     })
-
-    // Ensure images array is valid
-    if (!Array.isArray(imagesArray) || imagesArray.length === 0) {
-      return NextResponse.json(
-        { success: false, error: 'Invalid images array. At least one image is required.' },
-        { status: 400 }
-      )
-    }
 
     const resort = new Resort({
       name: Name || '',

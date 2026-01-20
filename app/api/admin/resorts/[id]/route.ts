@@ -125,13 +125,22 @@ export async function PUT(
           imagesArray = [mainImage]
         }
       }
-    }
 
-    if (!mainImage || imagesArray.length === 0) {
-      return NextResponse.json(
-        { success: false, error: 'At least one image is required' },
-        { status: 400 }
-      )
+      // Images are optional when updating; fall back to existing or placeholder
+      if (!mainImage || imagesArray.length === 0) {
+        const existingImages = (existingResort?.images as string[]) || []
+        const existingImage = (existingResort?.image as string) || ''
+        if (existingImages.length > 0) {
+          imagesArray = existingImages.filter((img) => img && img.trim())
+          mainImage = imagesArray[0] || existingImage || '/placeholder.svg'
+        } else if (existingImage) {
+          mainImage = existingImage
+          imagesArray = [existingImage]
+        } else {
+          mainImage = '/placeholder.svg'
+          imagesArray = []
+        }
+      }
     }
 
     console.log('Updating resort with images:', {
@@ -141,14 +150,6 @@ export async function PUT(
       receivedImages: Images,
       receivedImage: Image
     })
-
-    // Ensure images array is valid
-    if (!Array.isArray(imagesArray) || imagesArray.length === 0) {
-      return NextResponse.json(
-        { success: false, error: 'Invalid images array. At least one image is required.' },
-        { status: 400 }
-      )
-    }
 
     const updateDoc: any = {
       name: Name || '',

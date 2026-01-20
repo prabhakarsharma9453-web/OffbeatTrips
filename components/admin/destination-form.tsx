@@ -183,13 +183,6 @@ export default function DestinationForm() {
         setIsSaving(false)
         return
       }
-      if (!formData.image.trim()) {
-        toast({ title: "Validation Error", description: "Image is required", variant: "destructive" })
-        setFormError("Image is required")
-        setIsSaving(false)
-        return
-      }
-
       const url = editing ? `/api/admin/destinations/${editing.ID}` : "/api/admin/destinations"
       const method = editing ? "PUT" : "POST"
 
@@ -197,7 +190,7 @@ export default function DestinationForm() {
         name: formData.name.trim(),
         country: formData.country.trim(),
         trips: Number(formData.trips) || 0,
-        image: formData.image.trim(),
+        image: formData.image.trim() || "/placeholder.svg",
         slug: formData.slug.trim() || undefined,
         isPopular: Boolean(formData.isPopular),
         order: formData.order ? parseInt(formData.order, 10) : 0,

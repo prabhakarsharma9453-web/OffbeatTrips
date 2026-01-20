@@ -491,16 +491,6 @@ export default function PackageForm() {
       }
       
       allImages = Array.from(new Set(allImages.filter(img => img && img.trim())))
-      
-      if (allImages.length === 0) {
-        toast({
-          title: "Validation Error",
-          description: "At least one image is required",
-          variant: "destructive",
-        })
-        setIsSaving(false)
-        return
-      }
 
       // Ensure itinerary days have proper structure
       const validItinerary = itineraryDays.map((day, index) => ({

@@ -417,16 +417,6 @@ export default function ResortForm() {
       
       // Remove any duplicates and empty strings
       allImages = Array.from(new Set(allImages.filter(img => img && img.trim())))
-      
-      if (allImages.length === 0) {
-        toast({
-          title: "Error",
-          description: "At least one image is required",
-          variant: "destructive",
-        })
-        setIsSaving(false)
-        return
-      }
 
       // Prepare data with Images array - always send all images
       const submitData = {
