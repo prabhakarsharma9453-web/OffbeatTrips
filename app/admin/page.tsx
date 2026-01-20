@@ -42,10 +42,10 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background overflow-x-hidden w-full">
       <Navbar />
-      <div className="pt-20 md:pt-32 pb-6 md:pb-16 px-4 sm:px-6 md:px-8">
-        <div className="max-w-7xl mx-auto">
+      <div className="pt-20 md:pt-32 pb-6 md:pb-16 px-4 sm:px-6 md:px-8 w-full max-w-full overflow-x-hidden">
+        <div className="max-w-7xl mx-auto w-full">
           {/* Header */}
           <div className="mb-5 md:mb-8">
             <div className="flex items-center justify-between gap-4 mb-4 md:mb-4">
@@ -187,8 +187,10 @@ export default function AdminDashboard() {
               </div>
             </TabsContent>
 
-            <TabsContent value="users">
-              <UsersManagement />
+            <TabsContent value="users" className="w-full overflow-x-hidden">
+              <div className="w-full overflow-x-hidden">
+                <UsersManagement />
+              </div>
             </TabsContent>
           </Tabs>
         </div>

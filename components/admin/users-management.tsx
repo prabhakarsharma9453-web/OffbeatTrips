@@ -107,58 +107,65 @@ export default function UsersManagement() {
   }
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-white">Manage Users</h2>
+    <div className="space-y-4 md:space-y-6 w-full overflow-x-hidden">
+      <h2 className="text-xl md:text-2xl font-bold text-white">Manage Users</h2>
 
-      <div className="grid gap-4">
+      <div className="grid gap-3 md:gap-4 w-full">
         {users.map((user) => (
           <div
             key={user.id}
-            className="bg-card border border-border rounded-lg p-6 flex items-center justify-between"
+            className="bg-card border border-border rounded-xl md:rounded-lg p-4 md:p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 w-full min-w-0 overflow-hidden"
           >
-            <div className="flex items-center gap-4 flex-1">
+            {/* User Info Section */}
+            <div className="flex items-center gap-3 md:gap-4 flex-1 min-w-0">
               {user.image ? (
                 <img
                   src={user.image}
                   alt={user.name || user.email}
-                  className="w-12 h-12 rounded-full"
+                  className="w-12 h-12 md:w-14 md:h-14 rounded-full flex-shrink-0"
                 />
               ) : (
-                <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center">
-                  <UserIcon className="w-6 h-6 text-muted-foreground" />
+                <div className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
+                  <UserIcon className="w-6 h-6 md:w-7 md:h-7 text-muted-foreground" />
                 </div>
               )}
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <h3 className="text-lg font-semibold text-white">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <h3 className="text-base md:text-lg font-semibold text-white truncate">
                     {user.name || "No Name"}
                   </h3>
                   {user.role === "admin" && (
-                    <Shield className="w-4 h-4 text-primary" />
+                    <Shield className="w-4 h-4 md:w-5 md:h-5 text-primary flex-shrink-0" />
                   )}
                 </div>
-                <p className="text-muted-foreground">{user.email}</p>
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-sm md:text-base text-muted-foreground truncate mb-1">
+                  {user.email}
+                </p>
+                <p className="text-xs md:text-sm text-muted-foreground">
                   Joined: {new Date(user.created_at).toLocaleDateString()}
                 </p>
               </div>
             </div>
-            <div className="ml-4">
-              <Select
-                value={user.role}
-                onValueChange={(value) => handleRoleChange(user.id, value)}
-                disabled={updatingRoles.has(user.id)}
-              >
-                <SelectTrigger className="w-32">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="user">User</SelectItem>
-                  <SelectItem value="admin">Admin</SelectItem>
-                </SelectContent>
-              </Select>
+
+            {/* Role Select Section */}
+            <div className="flex items-center gap-3 sm:ml-4 w-full sm:w-auto">
+              <div className="flex-1 sm:flex-initial min-w-0 sm:min-w-[140px]">
+                <Select
+                  value={user.role}
+                  onValueChange={(value) => handleRoleChange(user.id, value)}
+                  disabled={updatingRoles.has(user.id)}
+                >
+                  <SelectTrigger className="w-full sm:w-[140px] h-10 md:h-11">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="user">User</SelectItem>
+                    <SelectItem value="admin">Admin</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
               {updatingRoles.has(user.id) && (
-                <Loader2 className="w-4 h-4 animate-spin text-primary mt-2 ml-auto" />
+                <Loader2 className="w-5 h-5 animate-spin text-primary flex-shrink-0" />
               )}
             </div>
           </div>
@@ -167,7 +174,7 @@ export default function UsersManagement() {
 
       {users.length === 0 && (
         <div className="text-center py-16">
-          <p className="text-muted-foreground">No users found</p>
+          <p className="text-muted-foreground text-base md:text-lg">No users found</p>
         </div>
       )}
     </div>
