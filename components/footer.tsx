@@ -27,10 +27,10 @@ export default function Footer() {
   ]
 
   const socialLinks = [
-    { icon: Facebook, href: "https://facebook.com", label: "Facebook" },
-    { icon: Instagram, href: "https://instagram.com", label: "Instagram" },
-    { icon: Twitter, href: "https://twitter.com", label: "Twitter" },
-    { icon: Youtube, href: "https://youtube.com", label: "YouTube" },
+    { icon: Facebook, href: "https://www.facebook.com/p/OffbeatTrips-100086920822238/#Thank", label: "Facebook" },
+    { icon: Instagram, href: "https://www.instagram.com/offbeattrips.official/", label: "Instagram" },
+    { icon: Twitter, href: "https://x.com/OffbeatTrips_", label: "Twitter" },
+    { icon: Youtube, href: "https://www.youtube.com/@offbeattrips.official", label: "YouTube" },
   ]
 
   return (
@@ -52,6 +52,39 @@ export default function Footer() {
             <p className="text-muted-foreground text-sm mb-4">
               Your trusted partner for extraordinary travel experiences worldwide.
             </p>
+            {/* Office Locations */}
+            <div className="mb-4 space-y-2">
+              <p className="text-[10px] font-medium tracking-[0.25em] uppercase text-muted-foreground">
+                Offices
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <span
+                  className="text-xs px-3 py-1 rounded-full border border-white/10 text-muted-foreground hover:text-primary hover:border-primary/60 bg-card/80 cursor-default transition-colors"
+                  title="Raj Nagar Part 1, New Delhi, Shiv Mandir Marg, Palam Colony, Delhi-110045"
+                >
+                  Delhi
+                </span>
+                <span
+                  className="text-xs px-3 py-1 rounded-full border border-white/10 text-muted-foreground hover:text-primary hover:border-primary/60 bg-card/80 cursor-default transition-colors"
+                  title="Plot No. 93, Sector 44, Gurugram, Haryana - 122003"
+                >
+                  Gurugram
+                </span>
+                <span
+                  className="text-xs px-3 py-1 rounded-full border border-white/10 text-muted-foreground hover:text-primary hover:border-primary/60 bg-card/80 cursor-default transition-colors"
+                  title="Near Kumbhar Wada Police Station, Opp:. Central Bank Of India, Bhiwandi, Mumbai: 421302"
+                >
+                  Mumbai
+                </span>
+                <span
+                  className="text-xs px-3 py-1 rounded-full border border-white/10 text-muted-foreground hover:text-primary hover:border-primary/60 bg-card/80 cursor-default transition-colors"
+                  title="Mayapuri, Near Meera Ghati, Karnal-132001"
+                >
+                  Karnal
+                </span>
+              </div>
+            </div>
+
             <div className="flex gap-3">
               {socialLinks.map((social, i) => {
                 const Icon = social.icon
