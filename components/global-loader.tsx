@@ -45,7 +45,7 @@ export default function GlobalLoader() {
         fadeOut ? "opacity-0" : "opacity-100"
       }`}
     >
-     <div className="max-w-6xl mx-auto px-6 sm:px-8 md:px-12 relative z-10 text-center">
+     {/* <div className="max-w-6xl mx-auto px-6 sm:px-8 md:px-12 relative z-10 text-center">
       <h1
     className={`flex items-center justify-center gap-2 sm:gap-3 md:gap-4 font-cormorant-semibold text-[#D4AF37] whitespace-nowrap ${
       !fadeOut ? "animate-luxury-reveal" : ""
@@ -56,7 +56,33 @@ export default function GlobalLoader() {
     </span>
       
   </h1>
-    </div>
+    </div> */}
+
+<div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-12 relative z-10 text-center">
+  <h1
+    className={`flex items-center justify-center font-cormorant-semibold text-[#D4AF37]
+      whitespace-normal sm:whitespace-nowrap
+      ${
+        !fadeOut ? "animate-luxury-reveal" : ""
+      }`}
+  >
+    <span
+      className="
+        text-[11px]
+        sm:text-sm
+        md:text-base
+        lg:text-lg
+        tracking-[0.18em]
+        uppercase
+        leading-relaxed sm:leading-none
+        text-center
+      "
+    >
+      You're stepping into the world's most loved Offbeat space
+    </span>
+  </h1>
+</div>
+
 
     </div>
   )
