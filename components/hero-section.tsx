@@ -79,7 +79,7 @@ export default function HeroSection() {
   }
 
   return (
-    <section className="relative min-h-screen overflow-hidden">
+    <section className="relative min-h-[80vh] overflow-hidden">
       {/* Background Images with Smooth Transition */}
       <div className="absolute inset-0">
         {/* Current Background */}
@@ -108,21 +108,28 @@ export default function HeroSection() {
       </div>
 
       {/* Content */}
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-12 sm:pt-24 sm:pb-16 lg:pt-32 lg:pb-20">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-10 sm:pt-24 sm:pb-16 lg:pt-32 lg:pb-20">
          {/* Mobile: Search Bar above heading */}
-         <div className="block md:hidden mt-4 mb-5">
+         <div className="block md:hidden mt-32 mb-20">
            <div className="w-full max-w-sm mx-auto ">
              <SearchBar />
            </div>
          </div>
 
-        <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 items-center min-h-[calc(100vh-200px)]">
+        <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 items-center lg:min-h-[calc(80vh-200px)]">
           {/* Left Column */}
-          <div className="space-y-4 sm:space-y-6 lg:space-y-8">
-            <div className={`space-y-3 sm:space-y-4 ${isVisible ? "animate-fade-in-left" : "opacity-0"}`}>
-              <h1 className="font-serif text-xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-tight text-balance">
-              Not Just Trips Unforgettable<span className="text-primary"> Offbeat Experiences!</span>
-              </h1>
+            <div className="space-y-4 sm:space-y-6 lg:space-y-8 flex flex-col justify-center">
+              <div className={`space-y-3 sm:space-y-4 ${isVisible ? "animate-fade-in-left" : "opacity-0"}`}>
+                <h1 className="font-serif text-base sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-white leading-tight text-center sm:text-left">
+                  Discover the World’s Most
+                  <br className="block sm:hidden" />
+                  {" "}
+                  Extraordinary Journeys
+                  <span className="block sm:inline text-primary text-sm sm:text-lg md:text-xl">
+                    {" "}
+                    Handpicked adventures | hidden gems
+                  </span>
+                </h1>
               {/* <p className="text-base sm:text-lg text-white/70 max-w-md">
                 Explore attractions, tours and more with our curated adventure packages
               </p> */}
@@ -141,10 +148,10 @@ export default function HeroSection() {
           </div>
 
           {/* Right Column */}
-          <div className="space-y-4 sm:space-y-6 lg:space-y-8">
-            {/* Adventure Mood */}
+          {/* <div className="space-y-4 sm:space-y-6 lg:space-y-8">
+            Adventure Mood comment
             <div className={`${isVisible ? "animate-fade-in-right delay-100" : "opacity-0"}`}>
-              <h3 className="text-white font-semibold mb-3 sm:mb-4">Adventure Mood</h3>
+              <h3 className="text-white font-semibold mb-3 sm:mb-4">Start Your Journey</h3>
               <div className="flex flex-wrap gap-2 sm:gap-3">
                 {activities.map((activity) => (
                   <button
@@ -162,7 +169,7 @@ export default function HeroSection() {
               </div>
             </div>
 
-            {/* Featured Cards */}
+            Featured Cards comment
             <div className={`${isVisible ? "animate-fade-in-right delay-300" : "opacity-0"}`}>
               <div className="flex gap-4 overflow-hidden">
                 {featuredTrips.slice(currentSlide, currentSlide + 2).map((trip, index) => (
@@ -186,7 +193,7 @@ export default function HeroSection() {
                 ))}
               </div>
 
-              {/* Carousel Controls */}
+              Carousel Controls comment
               <div className="flex items-center justify-center gap-3 sm:gap-4 mt-4 sm:mt-6">
                 <button
                   onClick={prevSlide}
@@ -210,7 +217,8 @@ export default function HeroSection() {
                 </div>
               </div>
             </div>
-          </div>
+          </div> */}
+          
         </div>
         
       </div>

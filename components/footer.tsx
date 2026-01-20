@@ -36,8 +36,33 @@ export default function Footer() {
   return (
     <footer className="bg-card border-t border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        {/* Top: centered social links */}
+        <div className="flex flex-col items-center gap-3 mb-10">
+          <p className="text-[10px] font-medium tracking-[0.25em] uppercase text-muted-foreground text-center">
+            Let&apos;s become friend
+          </p>
+          <div className="flex gap-3">
+            {socialLinks.map((social, i) => {
+              const Icon = social.icon
+              return (
+                <a
+                  key={i}
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={social.label}
+                  className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-white transition-colors"
+                >
+                  <Icon className="w-4 h-4" />
+                </a>
+              )
+            })}
+          </div>
+        </div>
+
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 lg:gap-12">
-          {/* Brand */}
+
+          {/* Brand & offices */}
           <div className="col-span-2 md:col-span-1">
             <Link href="/" className="flex items-center gap-2 mb-4">
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
@@ -49,9 +74,12 @@ export default function Footer() {
                 </span>
               </div>
             </Link>
-            <p className="text-muted-foreground text-sm mb-4">
+            {/* <p className="text-muted-foreground text-sm mb-4">
               Your trusted partner for extraordinary travel experiences worldwide.
-            </p>
+            </p> */}
+
+           
+
             {/* Office Locations */}
             <div className="mb-4 space-y-2">
               <p className="text-[10px] font-medium tracking-[0.25em] uppercase text-muted-foreground">
@@ -85,23 +113,7 @@ export default function Footer() {
               </div>
             </div>
 
-            <div className="flex gap-3">
-              {socialLinks.map((social, i) => {
-                const Icon = social.icon
-                return (
-                  <a
-                    key={i}
-                    href={social.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={social.label}
-                    className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-white transition-colors"
-                  >
-                    <Icon className="w-4 h-4" />
-                  </a>
-                )
-              })}
-            </div>
+            
           </div>
 
           {/* Quick Links */}

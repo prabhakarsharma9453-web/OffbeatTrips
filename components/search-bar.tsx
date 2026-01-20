@@ -197,7 +197,7 @@ export default function SearchBar() {
             {/* Input Field */}
             <Input
               type="text"
-              placeholder="Search for destinations, packages, resorts, or activities..."
+              placeholder="Where does your soul want to go?"
               value={searchQuery}
               onChange={(e) => {
                 setSearchQuery(e.target.value)

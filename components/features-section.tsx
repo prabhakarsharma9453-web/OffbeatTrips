@@ -102,7 +102,7 @@ export default function FeaturesSection() {
       <div className="max-w-7xl mx-auto">
         <div className={`text-center mb-4 sm:mb-6 lg:mb-6 ${isVisible ? "animate-fade-in-up" : "opacity-0"}`}>
           <h2 className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-white uppercase tracking-wide">
-            The Reasons We Make The Difference
+          The OffbeatTrips Standards
           </h2>
         </div>
 
