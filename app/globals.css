@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&display=swap");
 
 @custom-variant dark (&:is(.dark *));
 
@@ -92,6 +93,39 @@
 }
 
 /* Custom animations for scroll effects */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes breathe {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.02);
+    opacity: 0.98;
+  }
+}
+
+@keyframes luxury-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(2%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @keyframes fade-in-up {
   from {
     opacity: 0;
@@ -155,6 +189,23 @@
     opacity: 1;
     transform: translateX(0);
   }
+}
+
+.animate-fade-in {
+  animation: fade-in 1.2s ease-out forwards;
+}
+
+.animate-breathe {
+  animation: breathe 3s ease-in-out infinite;
+}
+
+.animate-luxury-reveal {
+  animation: luxury-reveal 1.6s ease-out forwards;
+}
+
+.font-cormorant-semibold {
+  font-family: "Cormorant Garamond", serif;
+  font-weight: 600;
 }
 
 .animate-fade-in-up {
