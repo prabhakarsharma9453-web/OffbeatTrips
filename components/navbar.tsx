@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useSession } from "next-auth/react"
-import { Menu, X, MapPin, Shield, User } from "lucide-react"
+import { Menu, X, MapPin, Shield, User, Phone, Mail } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 export default function Navbar() {
@@ -114,10 +114,26 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Mobile Menu Button */}
-          <button className="md:hidden text-white" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-            {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
+          {/* Mobile: Contact Icons (between logo and hamburger) */}
+          <div className="md:hidden flex items-center gap-2 flex-1 justify-end">
+            <a
+              href="tel:+918588855935"
+              className="p-2 rounded-full bg-primary/20 hover:bg-primary/30 border border-primary/30 text-white transition-colors"
+              aria-label="Call us"
+            >
+              <Phone className="w-5 h-5" />
+            </a>
+            <a
+              href="mailto:happyholidaying@offbeattrips.in"
+              className="p-2 rounded-full bg-primary/20 hover:bg-primary/30 border border-primary/30 text-white transition-colors"
+              aria-label="Email us"
+            >
+              <Mail className="w-5 h-5" />
+            </a>
+            <button className="text-white ml-2" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+              {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+          </div>
         </div>
 
         {/* Mobile Menu Overlay */}
