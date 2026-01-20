@@ -108,32 +108,36 @@ export default function HeroSection() {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-12 sm:pt-24 sm:pb-16 lg:pt-32 lg:pb-20">
-        {/* Mobile: Search Bar above heading */}
-        <div className="block md:hidden mb-4 -mx-2">
-          <SearchBar />
-        </div>
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-12 sm:pt-24 sm:pb-16 lg:pt-32 lg:pb-20">
+         {/* Mobile: Search Bar above heading */}
+         <div className="block md:hidden mt-4 mb-5">
+           <div className="w-full max-w-sm mx-auto ">
+             <SearchBar />
+           </div>
+         </div>
 
         <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 items-center min-h-[calc(100vh-200px)]">
           {/* Left Column */}
           <div className="space-y-4 sm:space-y-6 lg:space-y-8">
             <div className={`space-y-3 sm:space-y-4 ${isVisible ? "animate-fade-in-left" : "opacity-0"}`}>
-              <h1 className="font-serif text-2xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-tight text-balance">
+              <h1 className="font-serif text-xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-tight text-balance">
               Not Just Trips Unforgettable<span className="text-primary"> Offbeat Experiences!</span>
               </h1>
-              <p className="text-base sm:text-lg text-white/70 max-w-md">
+              {/* <p className="text-base sm:text-lg text-white/70 max-w-md">
                 Explore attractions, tours and more with our curated adventure packages
-              </p>
+              </p> */}
             </div>
 
-            <div className={`${isVisible ? "animate-fade-in-left delay-200" : "opacity-0"}`}>
+            {/* <div className={`${isVisible ? "animate-fade-in-left delay-200" : "opacity-0"}`}>
               <Link href="/activities/hiking">
                 <Button size="lg" className="bg-white text-background hover:bg-white/90 gap-2 group px-6">
                   <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                   View all hiking activities
                 </Button>
               </Link>
-            </div>
+            </div> */}
+
+            
           </div>
 
           {/* Right Column */}
@@ -208,7 +212,10 @@ export default function HeroSection() {
             </div>
           </div>
         </div>
+        
       </div>
+
+
     </section>
   )
 }

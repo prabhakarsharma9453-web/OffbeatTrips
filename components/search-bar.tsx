@@ -184,9 +184,9 @@ export default function SearchBar() {
         
         {/* Main search container */}
         <div className="relative bg-gradient-to-br from-card/90 via-card/80 to-card/90 backdrop-blur-xl border border-white/10 rounded-full shadow-2xl shadow-primary/10 group-focus-within:border-primary/50 group-focus-within:shadow-primary/20 transition-all duration-300">
-          <div className="flex items-center gap-2 md:gap-2.5 px-3 py-2.5 md:px-4 md:py-3">
+          <div className="flex items-center gap-2 md:gap-2.5 px-3 py-1.5 md:px-4 md:py-3">
             {/* Search Icon */}
-            <div className="flex-shrink-0 w-8 h-8 md:w-9 md:h-9 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center border border-primary/20 group-focus-within:border-primary/40 group-focus-within:bg-gradient-to-br group-focus-within:from-primary/30 group-focus-within:to-secondary/30 transition-all duration-300">
+            <div className="flex-shrink-0 w-7 h-7 md:w-9 md:h-9 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center border border-primary/20 group-focus-within:border-primary/40 group-focus-within:bg-gradient-to-br group-focus-within:from-primary/30 group-focus-within:to-secondary/30 transition-all duration-300">
               {isSearching ? (
                 <Loader2 className="w-4 h-4 md:w-4 md:h-4 text-primary animate-spin" />
               ) : (
