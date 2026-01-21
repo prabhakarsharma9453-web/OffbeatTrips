@@ -38,6 +38,15 @@ export default function PackagesSection() {
   const [domesticPackages, setDomesticPackages] = useState<Package[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
+  const getPriceValue = (price: string): number => {
+    const cleaned = price.replace(/[₹$,]/g, "").trim()
+    const num = parseFloat(cleaned)
+    return Number.isFinite(num) ? num : Number.POSITIVE_INFINITY
+  }
+
+  const sortByPriceAsc = (arr: Package[]): Package[] =>
+    [...arr].sort((a, b) => getPriceValue(a.price) - getPriceValue(b.price))
+
   // Fetch packages from MongoDB
   useEffect(() => {
     const fetchPackages = async () => {
@@ -49,7 +58,7 @@ export default function PackagesSection() {
         const internationalData = await internationalResponse.json()
         
         if (internationalData.success) {
-          setInternationalPackages(internationalData.data || [])
+          setInternationalPackages(sortByPriceAsc(internationalData.data || []))
         }
         
         // Fetch domestic packages
@@ -57,7 +66,7 @@ export default function PackagesSection() {
         const domesticData = await domesticResponse.json()
 
         if (domesticData.success) {
-          setDomesticPackages(domesticData.data || [])
+          setDomesticPackages(sortByPriceAsc(domesticData.data || []))
         }
       } catch (error) {
         console.error('Error fetching packages:', error)

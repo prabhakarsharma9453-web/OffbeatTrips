@@ -6,132 +6,48 @@ import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { MapPin, ArrowRight } from "lucide-react"
 
-const allDestinations = [
-  {
-    id: 1,
-    name: "Switzerland",
-    country: "Europe",
-    trips: 12,
-    image: "/switzerland-alps-beautiful-scenery.jpg",
-    slug: "Switzerland",
-    type: "international",
-  },
-  {
-    id: 2,
-    name: "Norway",
-    country: "Europe",
-    trips: 8,
-    image: "/norway-fjords-beautiful-water-mountains.jpg",
-    slug: "Norway",
-    type: "international",
-  },
-  {
-    id: 3,
-    name: "Ladakh",
-    country: "India",
-    trips: 15,
-    image: "/ladakh-mountains-pangong-lake-adventure.jpg",
-    slug: "Ladakh",
-    type: "domestic",
-  },
-  {
-    id: 4,
-    name: "Thailand",
-    country: "Asia",
-    trips: 10,
-    image: "/thailand-beach-islands-tropical-paradise.jpg",
-    slug: "Thailand",
-    type: "international",
-  },
-  {
-    id: 5,
-    name: "New Zealand",
-    country: "Oceania",
-    trips: 9,
-    image: "/new-zealand-mountains-nature-scenic.jpg",
-    slug: "New-Zealand",
-    type: "international",
-  },
-  {
-    id: 6,
-    name: "Manali",
-    country: "India",
-    trips: 18,
-    image: "/manali-mountains-snow-adventure-himachal.jpg",
-    slug: "Manali",
-    type: "domestic",
-  },
-  {
-    id: 7,
-    name: "France",
-    country: "Europe",
-    trips: 14,
-    image: "/coastal-hiking-beach-cliffs-adventure.jpg",
-    slug: "France",
-    type: "international",
-  },
-  {
-    id: 8,
-    name: "Maldives",
-    country: "Asia",
-    trips: 11,
-    image: "/thailand-beach-islands-tropical-paradise.jpg",
-    slug: "Maldives",
-    type: "international",
-  },
-  {
-    id: 9,
-    name: "Kerala",
-    country: "India",
-    trips: 16,
-    image: "/kerala-backwaters-houseboat-beautiful-nature.jpg",
-    slug: "Kerala",
-    type: "domestic",
-  },
-  {
-    id: 10,
-    name: "Goa",
-    country: "India",
-    trips: 13,
-    image: "/thailand-beach-islands-tropical-paradise.jpg",
-    slug: "Goa",
-    type: "domestic",
-  },
-  {
-    id: 11,
-    name: "Rajasthan",
-    country: "India",
-    trips: 12,
-    image: "/ladakh-mountains-pangong-lake-adventure.jpg",
-    slug: "Rajasthan",
-    type: "domestic",
-  },
-  {
-    id: 12,
-    name: "Iceland",
-    country: "Europe",
-    trips: 9,
-    image: "/norway-fjords-beautiful-water-mountains.jpg",
-    slug: "Iceland",
-    type: "international",
-  },
-]
-
 export default function AllDestinationsPage() {
   const [isVisible, setIsVisible] = useState(false)
   const [activeTab, setActiveTab] = useState<"all" | "international" | "domestic">("all")
+  const [destinations, setDestinations] = useState<
+    { id: string; name: string; country: string; trips: number; image: string; slug: string }[]
+  >([])
   const sectionRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
     setIsVisible(true)
   }, [])
 
+  // Load destinations from database
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await fetch("/api/destinations")
+        const json = await res.json()
+        if (json.success && Array.isArray(json.data)) {
+          setDestinations(json.data)
+        } else {
+          setDestinations([])
+        }
+      } catch (error) {
+        console.error("Error loading destinations:", error)
+        setDestinations([])
+      }
+    }
+    load()
+  }, [])
+
+  const withType = destinations.map((d) => {
+    const isDomestic = String(d.country || "").toLowerCase().includes("india")
+    return { ...d, type: isDomestic ? "domestic" : "international" as "domestic" | "international" }
+  })
+
   const filteredDestinations =
     activeTab === "all"
-      ? allDestinations
+      ? withType
       : activeTab === "international"
-        ? allDestinations.filter((dest) => dest.type === "international")
-        : allDestinations.filter((dest) => dest.type === "domestic")
+        ? withType.filter((dest) => dest.type === "international")
+        : withType.filter((dest) => dest.type === "domestic")
 
   return (
     <div className="min-h-screen bg-background">
@@ -193,7 +109,7 @@ export default function AllDestinationsPage() {
 
           {/* Destinations Grid */}
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {filteredDestinations.map((destination, index) => (
+            {filteredDestinations.map((destination: any, index: number) => (
               <Link
                 key={destination.id}
                 href={`/trips/${destination.slug}`}

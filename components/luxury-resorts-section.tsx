@@ -37,6 +37,15 @@ export default function LuxuryResortsSection() {
   const [domesticResorts, setDomesticResorts] = useState<Resort[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
+  const getPriceValue = (price: string): number => {
+    const cleaned = price.replace(/[₹$,]/g, "").trim()
+    const num = parseFloat(cleaned)
+    return Number.isFinite(num) ? num : Number.POSITIVE_INFINITY
+  }
+
+  const sortByPriceAsc = (arr: Resort[]): Resort[] =>
+    [...arr].sort((a, b) => getPriceValue(a.price) - getPriceValue(b.price))
+
   // Fetch resorts from MongoDB
   useEffect(() => {
     const fetchResorts = async () => {
@@ -48,7 +57,7 @@ export default function LuxuryResortsSection() {
         const internationalData = await internationalResponse.json()
         
         if (internationalData.success) {
-          setInternationalResorts(internationalData.data || [])
+          setInternationalResorts(sortByPriceAsc(internationalData.data || []))
         }
         
         // Fetch domestic resorts
@@ -56,7 +65,7 @@ export default function LuxuryResortsSection() {
         const domesticData = await domesticResponse.json()
 
         if (domesticData.success) {
-          setDomesticResorts(domesticData.data || [])
+          setDomesticResorts(sortByPriceAsc(domesticData.data || []))
         }
       } catch (error) {
         console.error('Error fetching resorts:', error)
