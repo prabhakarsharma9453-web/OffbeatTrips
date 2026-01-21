@@ -37,7 +37,8 @@ export default function StatsSection() {
             { value: "500+", label: "Destinations" },
             { value: "4.9/5", label: "Average Rating" },
             { value: "98%", label: "Satisfaction Rate" },
-            { value: "7Y", label: "7 Years of trust" }
+            { value: "7Y", label: "7 Years of trust" } 
+            
           ].map((stat, index) => (
             <div
               key={index}
