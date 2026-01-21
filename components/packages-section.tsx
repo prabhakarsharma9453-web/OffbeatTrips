@@ -169,7 +169,7 @@ export default function PackagesSection() {
           </div>
           <Link href={`/packages/${pkg.slug}`}>
             <Button size="sm" className="bg-primary hover:bg-primary/90 text-xs sm:text-sm px-3 sm:px-4 cursor-pointer">
-              Explore
+              Book Now
             </Button>
           </Link>
         </div>
@@ -189,8 +189,15 @@ export default function PackagesSection() {
           </p>
         </div>
 
-        <Tabs defaultValue="domestic" className="w-full">
+        <Tabs defaultValue="international" className="w-full">
           <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-6 sm:mb-8 lg:mb-8 bg-muted">
+          <TabsTrigger
+              value="international"
+              className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-white"
+            >
+              <Globe className="w-4 h-4" />
+              International
+            </TabsTrigger>
             <TabsTrigger
               value="domestic"
               className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-white"
@@ -198,13 +205,7 @@ export default function PackagesSection() {
               <MapPin className="w-4 h-4" />
               Domestic
             </TabsTrigger>
-            <TabsTrigger
-              value="international"
-              className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-white"
-            >
-              <Globe className="w-4 h-4" />
-              International
-            </TabsTrigger>
+            
           </TabsList>
 
           <TabsContent value="international" className="mt-0">

@@ -110,7 +110,7 @@ export default function HeroSection() {
       {/* Content */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-10 sm:pt-24 sm:pb-16 lg:pt-32 lg:pb-20">
          {/* Mobile: Search Bar above heading */}
-         <div className="block md:hidden mt-32 mb-20">
+         <div className="block md:hidden mt-18 mb-20">
            <div className="w-full max-w-sm mx-auto ">
              <SearchBar />
            </div>
@@ -120,12 +120,12 @@ export default function HeroSection() {
           {/* Left Column */}
             <div className="space-y-4 sm:space-y-6 lg:space-y-8 flex flex-col justify-center">
               <div className={`space-y-3 sm:space-y-4 ${isVisible ? "animate-fade-in-left" : "opacity-0"}`}>
-                <h1 className="font-serif text-base sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-white leading-tight text-center sm:text-left">
+                <h1 className="font-serif text-base sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-tight text-center sm:text-left">
                   Discover the World’s Most
                   <br className="block sm:hidden" />
                   {" "}
                   Extraordinary Journeys
-                  <span className="block sm:inline text-primary text-sm sm:text-lg md:text-xl">
+                  <span className="block sm:inline text-primary text-md sm:text-xl md:text-2xl">
                     {" "}
                     Handpicked adventures | hidden gems
                   </span>
