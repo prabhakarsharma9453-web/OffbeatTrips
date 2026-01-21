@@ -49,9 +49,12 @@ export async function GET() {
       title: s.title,
       slug: s.slug,
       excerpt: s.excerpt || '',
-      image: s.image,
+      content: s.content || '',
+      image: s.image || '',
+      images: s.images || [],
       category: s.category || 'Travel',
       readTimeMinutes: s.readTimeMinutes ?? 5,
+      authorName: s.authorName || 'Anonymous',
       createdAt: s.createdAt,
       updatedAt: s.updatedAt,
     }))
@@ -72,13 +75,31 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json()
-    const { title, category, excerpt, content, image } = body || {}
+    const { title, category, excerpt, content, image, images, authorName } = body || {}
 
     if (!title || !String(title).trim()) {
       return NextResponse.json({ success: false, error: 'Title is required' }, { status: 400 })
     }
     if (!content || !String(content).trim()) {
       return NextResponse.json({ success: false, error: 'Story content is required' }, { status: 400 })
+    }
+
+    // Handle images: prioritize images array, fallback to image string
+    let imagesArray: string[] = []
+    let mainImage = ''
+    
+    if (images && Array.isArray(images) && images.length > 0) {
+      imagesArray = images.filter((img: string) => img && typeof img === 'string' && img.trim())
+      mainImage = imagesArray[0] || ''
+    } else if (image) {
+      mainImage = typeof image === 'string' ? image : String(image)
+      imagesArray = [mainImage]
+    }
+    
+    // If no images provided, use empty array and empty string
+    if (!mainImage) {
+      mainImage = ''
+      imagesArray = []
     }
 
     await connectDB()
@@ -107,11 +128,14 @@ export async function POST(request: Request) {
       slug: finalSlug,
       excerpt: finalExcerpt,
       content: finalContent,
-      image: image && String(image).trim() ? String(image).trim() : '',
+      image: mainImage,
+      images: imagesArray,
       category: category && String(category).trim() ? String(category).trim() : 'Travel',
       readTimeMinutes: calcReadTimeMinutes(finalContent),
       authorId: session.user.id,
-      authorName: (user as any).name || (user as any).username || (user as any).email || 'Anonymous',
+      authorName: authorName && String(authorName).trim() 
+        ? String(authorName).trim() 
+        : (user as any).name || (user as any).username || (user as any).email || 'Anonymous',
       authorImage: (user as any).image || '',
     })
 

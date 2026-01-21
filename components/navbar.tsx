@@ -41,7 +41,7 @@ export default function Navbar() {
     { name: "Destinations", href: isHomePage ? "#destinations" : "/destinations" },
     { name: "Packages", href: isHomePage ? "#packages" : "/packages" },
     { name: "Activities", href: isHomePage ? "#activities" : "/activities/hiking" },
-    { name: "Yachts", href: "/yachts" },
+    // { name: "Yachts", href: "/yachts" },
     { name: "Blog", href: isHomePage ? "#blog" : "/blog" },
     { name: "Contact", href: isHomePage ? "#contact" : "/#contact" },
   ]

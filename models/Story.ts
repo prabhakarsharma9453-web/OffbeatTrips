@@ -7,6 +7,7 @@ export interface IStory {
   excerpt: string
   content: string
   image: string
+  images?: string[]
   category?: string
   readTimeMinutes?: number
   authorId: string
@@ -22,7 +23,8 @@ const StorySchema = new Schema<IStory>(
     slug: { type: String, required: true, unique: true, index: true },
     excerpt: { type: String, default: '' },
     content: { type: String, required: true },
-    image: { type: String, required: true },
+    image: { type: String, default: '' },
+    images: { type: [String], default: [] },
     category: { type: String, default: 'Travel' },
     readTimeMinutes: { type: Number, default: 5 },
     authorId: { type: String, required: true, index: true },

@@ -2,13 +2,15 @@
 
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
-import { Calendar, User, ArrowRight, Clock, Loader2 } from "lucide-react"
+import { Calendar, User, ArrowRight, Clock, Loader2, ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
 } from "@/components/ui/carousel"
 
 type StoryCard = {
@@ -17,6 +19,7 @@ type StoryCard = {
   slug: string
   excerpt: string
   image: string
+  images?: string[]
   authorName: string
   authorImage?: string
   createdAt: string
@@ -40,6 +43,138 @@ function initials(name: string) {
   const first = parts[0]?.[0] || "U"
   const second = parts.length > 1 ? parts[parts.length - 1]?.[0] : ""
   return (first + second).toUpperCase()
+}
+
+function StoryImageCarousel({ post }: { post: StoryCard }) {
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const [autoPlay, setAutoPlay] = useState(true)
+  const userInteractedRef = useRef(false)
+
+  // Get all images - prioritize images array, fallback to single image
+  const images = post.images && post.images.length > 0 
+    ? post.images 
+    : post.image 
+      ? [post.image] 
+      : []
+
+  // Auto-play carousel
+  useEffect(() => {
+    if (!autoPlay || images.length <= 1 || userInteractedRef.current) return
+
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % images.length)
+    }, 4000)
+
+    return () => clearInterval(interval)
+  }, [autoPlay, images.length])
+
+  const handlePrevious = () => {
+    userInteractedRef.current = true
+    setAutoPlay(false)
+    setCurrentIndex((prev) => (prev - 1 + images.length) % images.length)
+  }
+
+  const handleNext = () => {
+    userInteractedRef.current = true
+    setAutoPlay(false)
+    setCurrentIndex((prev) => (prev + 1) % images.length)
+  }
+
+  const handleThumbnailClick = (index: number) => {
+    userInteractedRef.current = true
+    setAutoPlay(false)
+    setCurrentIndex(index)
+  }
+
+  if (images.length === 0) {
+    return (
+      <div className="relative h-52 overflow-hidden">
+        <img
+          src="/placeholder.svg"
+          alt={post.title}
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute top-4 left-4">
+          <span className="bg-primary text-white text-xs font-medium px-3 py-1 rounded-full">
+            {post.category}
+          </span>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="relative h-52 overflow-hidden group">
+      {/* Main Image Carousel */}
+      <div className="relative w-full h-full">
+        {images.map((img, idx) => (
+          <div
+            key={idx}
+            className={`absolute inset-0 transition-opacity duration-500 ${
+              idx === currentIndex ? "opacity-100 z-10" : "opacity-0 z-0"
+            }`}
+          >
+            <img
+              src={img || "/placeholder.svg"}
+              alt={`${post.title} - Image ${idx + 1}`}
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+              onError={(e) => {
+                ;(e.target as HTMLImageElement).src = "/placeholder.svg"
+              }}
+            />
+          </div>
+        ))}
+        
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent z-10" />
+        
+        {/* Category badge */}
+        <div className="absolute top-4 left-4 z-20">
+          <span className="bg-primary text-white text-xs font-medium px-3 py-1 rounded-full shadow-lg">
+            {post.category}
+          </span>
+        </div>
+
+        {/* Navigation buttons - only show if multiple images */}
+        {images.length > 1 && (
+          <>
+            <button
+              onClick={handlePrevious}
+              className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-black/50 hover:bg-black/70 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+              aria-label="Previous image"
+            >
+              <ChevronLeft className="w-5 h-5 text-white" />
+            </button>
+            <button
+              onClick={handleNext}
+              className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-black/50 hover:bg-black/70 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+              aria-label="Next image"
+            >
+              <ChevronRight className="w-5 h-5 text-white" />
+            </button>
+          </>
+        )}
+
+        {/* Image indicators */}
+        {images.length > 1 && (
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex gap-1.5">
+            {images.map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => handleThumbnailClick(idx)}
+                className={`h-1.5 rounded-full transition-all ${
+                  idx === currentIndex
+                    ? "bg-white w-6"
+                    : "bg-white/50 w-1.5 hover:bg-white/70"
+                }`}
+                aria-label={`Go to image ${idx + 1}`}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
 }
 
 export default function BlogSection() {
@@ -105,7 +240,8 @@ export default function BlogSection() {
               title: s.title,
               slug: s.slug,
               excerpt: s.excerpt,
-              image: s.image,
+              image: s.image || "",
+              images: s.images || [],
               authorName: s.authorName || "Anonymous",
               authorImage: s.authorImage || "",
               createdAt: s.createdAt,
@@ -185,21 +321,7 @@ export default function BlogSection() {
                       }`}
                       style={{ animationDelay: `${index * 100}ms` }}
                     >
-                      <div className="relative h-52 overflow-hidden">
-                        <img
-                          src={post.image || "/placeholder.svg"}
-                          alt={post.title}
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                          onError={(e) => {
-                            ;(e.target as HTMLImageElement).src = "/placeholder.svg"
-                          }}
-                        />
-                        <div className="absolute top-4 left-4">
-                          <span className="bg-primary text-white text-xs font-medium px-3 py-1 rounded-full">
-                            {post.category}
-                          </span>
-                        </div>
-                      </div>
+                      <StoryImageCarousel post={post} />
                       <div className="p-4 sm:p-5">
                         <div className="flex items-center gap-2 sm:gap-4 text-muted-foreground text-xs sm:text-sm mb-2 sm:mb-3">
                           <span className="flex items-center gap-1">
@@ -243,21 +365,7 @@ export default function BlogSection() {
                 }`}
                 style={{ animationDelay: `${index * 100}ms` }}
               >
-                <div className="relative h-52 overflow-hidden">
-                  <img
-                    src={post.image || "/placeholder.svg"}
-                    alt={post.title}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                    onError={(e) => {
-                      ;(e.target as HTMLImageElement).src = "/placeholder.svg"
-                    }}
-                  />
-                  <div className="absolute top-4 left-4">
-                    <span className="bg-primary text-white text-xs font-medium px-3 py-1 rounded-full">
-                      {post.category}
-                    </span>
-                  </div>
-                </div>
+                <StoryImageCarousel post={post} />
                 <div className="p-5 lg:p-6">
                   <div className="flex items-center gap-4 text-muted-foreground text-sm mb-3">
                     <span className="flex items-center gap-1">
