@@ -147,7 +147,7 @@ export default function TestimonialsSection() {
       </div>
       <div className="relative z-10">
         <div className="flex items-center gap-1 mb-2 sm:mb-3">
-            {[...Array(testimonial.rating)].map((_, i) => (
+          {[...Array(testimonial.rating)].map((_, i) => (
             <Star key={i} className="w-3.5 sm:w-4 h-3.5 sm:h-4 text-accent fill-accent" />
           ))}
         </div>

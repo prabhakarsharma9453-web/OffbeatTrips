@@ -75,7 +75,7 @@ export default function ResortForm() {
   const [imagesList, setImagesList] = useState<string[]>([]) // Multiple images
   const [isUploading, setIsUploading] = useState(false)
   const [roomTypes, setRoomTypes] = useState<
-    Array<{ name: string; price: string; image: string; description: string; amenitiesText: string }>
+    Array<{ name: string; price: string; image: string; images: string[]; description: string; amenitiesText: string }>
   >([])
   const [roomTypeUploadingIndex, setRoomTypeUploadingIndex] = useState<number | null>(null)
 
@@ -109,31 +109,44 @@ export default function ResortForm() {
       .filter(Boolean)
 
   const handleRoomTypeImageUpload = async (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+    const files = e.target.files
+    if (!files || files.length === 0) return
     try {
-      if (!file.type.startsWith("image/")) {
-        toast({ title: "Invalid File", description: "Please select an image file.", variant: "destructive" })
-        return
-      }
-      if (file.size > 5 * 1024 * 1024) {
-        toast({ title: "File Too Large", description: "Image must be under 5MB.", variant: "destructive" })
-        return
-      }
       setRoomTypeUploadingIndex(index)
-      const uploadFormData = new FormData()
-      uploadFormData.append("file", file)
-      const response = await fetch("/api/upload", { method: "POST", body: uploadFormData })
-      const result = await response.json()
-      if (!result?.success || !result?.path) {
-        throw new Error(result?.error || "Upload failed")
-      }
-      setRoomTypes((prev) => prev.map((rt, i) => (i === index ? { ...rt, image: result.path } : rt)))
-      toast({ title: "Success", description: "Room image uploaded." })
+      const uploadPromises = Array.from(files).map(async (file) => {
+        if (!file.type.startsWith("image/")) {
+          throw new Error(`${file.name} is not an image file.`)
+        }
+        if (file.size > 5 * 1024 * 1024) {
+          throw new Error(`${file.name} exceeds 5MB limit.`)
+        }
+        const uploadFormData = new FormData()
+        uploadFormData.append("file", file)
+        const response = await fetch("/api/upload", { method: "POST", body: uploadFormData })
+        const result = await response.json()
+        if (!result?.success || !result?.path) {
+          throw new Error(result?.error || "Upload failed")
+        }
+        return result.path as string
+      })
+
+      const uploaded = await Promise.all(uploadPromises)
+      setRoomTypes((prev) =>
+        prev.map((rt, i) =>
+          i === index
+            ? {
+                ...rt,
+                image: rt.image || uploaded[0] || rt.images[0] || "",
+                images: Array.from(new Set([...(rt.images || []), ...uploaded].filter(Boolean))),
+              }
+            : rt
+        )
+      )
+      toast({ title: "Success", description: `${uploaded.length} room image(s) uploaded.` })
     } catch (err) {
       toast({
         title: "Upload Failed",
-        description: err instanceof Error ? err.message : "Failed to upload room image",
+        description: err instanceof Error ? err.message : "Failed to upload room images",
         variant: "destructive",
       })
     } finally {
@@ -221,13 +234,21 @@ export default function ResortForm() {
       setImagesList(images) // Set all images to the list
       setRoomTypes(
         Array.isArray(resort.Room_Types) && resort.Room_Types.length > 0
-          ? resort.Room_Types.map((rt) => ({
-              name: String(rt.name || "").trim(),
-              price: String(rt.price || "").trim(),
-              image: String((rt as any).image || (rt as any).Image || ""),
-              description: String((rt as any).description || (rt as any).Description || ""),
-              amenitiesText: toAmenitiesText(rt.amenities),
-            }))
+          ? resort.Room_Types.map((rt) => {
+              const rtImages = Array.isArray((rt as any).images)
+                ? (rt as any).images.filter((img: any) => typeof img === "string" && img.trim())
+                : ((rt as any).image || (rt as any).Image)
+                  ? [String((rt as any).image || (rt as any).Image || "")]
+                  : []
+              return {
+                name: String(rt.name || "").trim(),
+                price: String(rt.price || "").trim(),
+                image: String((rt as any).image || (rt as any).Image || rtImages[0] || ""),
+                images: rtImages,
+                description: String((rt as any).description || (rt as any).Description || ""),
+                amenitiesText: toAmenitiesText(rt.amenities),
+              }
+            })
           : []
       )
       
@@ -426,13 +447,19 @@ export default function ResortForm() {
         Room_Types:
           roomTypes && roomTypes.length > 0
             ? roomTypes
-                .map((rt) => ({
-                  name: rt.name.trim(),
-                  price: rt.price.trim(),
-                  image: rt.image?.trim() || "",
-                  description: rt.description?.trim() || "",
-                  amenities: parseAmenitiesText(rt.amenitiesText),
-                }))
+                .map((rt) => {
+                  const mergedImages = Array.from(
+                    new Set([rt.image, ...(rt.images || [])].map((img) => img?.trim()).filter(Boolean) as string[])
+                  )
+                  return {
+                    name: rt.name.trim(),
+                    price: rt.price.trim(),
+                    image: mergedImages[0] || "",
+                    images: mergedImages,
+                    description: rt.description?.trim() || "",
+                    amenities: parseAmenitiesText(rt.amenitiesText),
+                  }
+                })
                 .filter((rt) => rt.name)
             : [],
       }
@@ -948,7 +975,7 @@ export default function ResortForm() {
                   onClick={() =>
                     setRoomTypes((prev) => [
                       ...prev,
-                        { name: `Room Type ${prev.length + 1}`, price: "", image: "", description: "", amenitiesText: "" },
+                      { name: `Room Type ${prev.length + 1}`, price: "", image: "", images: [], description: "", amenitiesText: "" },
                     ])
                   }
                 >
@@ -966,50 +993,87 @@ export default function ResortForm() {
                       <div className="flex items-start justify-between gap-3">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 flex-1">
                           <div className="sm:col-span-2">
-                            <label className="text-xs text-muted-foreground block mb-1">Room Image</label>
+                              <label className="text-xs text-muted-foreground block mb-1">Room Images</label>
                             <div className="flex items-center gap-3 flex-wrap">
-                              <div className="h-16 w-24 rounded-lg overflow-hidden border border-border bg-background/40">
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img
-                                  src={rt.image || "/placeholder.svg"}
-                                  alt={`${rt.name || "Room"} image`}
-                                  className="h-full w-full object-cover"
-                                  onError={(e) => {
-                                    ;(e.target as HTMLImageElement).src = "/placeholder.svg"
-                                  }}
-                                />
-                              </div>
-                              <label className="cursor-pointer">
-                                <div className="flex items-center gap-2 px-3 py-2 bg-muted rounded-lg hover:bg-muted/80 transition-colors border border-border text-sm">
-                                  {roomTypeUploadingIndex === idx ? (
-                                    <>
-                                      <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
-                                      <span className="text-muted-foreground">Uploading...</span>
-                                    </>
-                                  ) : (
-                                    <>
-                                      <Upload className="w-4 h-4 text-muted-foreground" />
-                                      <span className="text-muted-foreground">Upload Room Image</span>
-                                    </>
-                                  )}
+                                <div className="flex gap-2 overflow-x-auto py-1 pr-2">
+                                  {Array.from(new Set([rt.image, ...(rt.images || [])].filter(Boolean))).map((img, i2, arr) => (
+                                    <div key={`${img}-${i2}`} className="relative h-16 w-24 rounded-lg overflow-hidden border border-border bg-background/40">
+                                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                                      <img
+                                        src={img || "/placeholder.svg"}
+                                        alt={`${rt.name || "Room"} image ${i2 + 1}`}
+                                        className="h-full w-full object-cover"
+                                        onError={(e) => {
+                                          ;(e.target as HTMLImageElement).src = "/placeholder.svg"
+                                        }}
+                                      />
+                                      <button
+                                        type="button"
+                                        className="absolute top-1 right-1 bg-black/60 rounded-full w-6 h-6 flex items-center justify-center text-white text-xs"
+                                        onClick={() =>
+                                          setRoomTypes((prev) =>
+                                            prev.map((x, i) => {
+                                              if (i !== idx) return x
+                                              const merged = Array.from(new Set([x.image, ...(x.images || [])].filter(Boolean)))
+                                              const remaining = merged.filter((_, j) => j !== i2)
+                                              return {
+                                                ...x,
+                                                image: remaining[0] || "",
+                                                images: remaining.slice(1),
+                                              }
+                                            })
+                                          )
+                                        }
+                                      aria-label="Remove room image"
+                                      title="Remove room image"
+                                      >
+                                        <X className="w-3 h-3" />
+                                      </button>
+                                    </div>
+                                  ))}
                                 </div>
-                                <input
-                                  type="file"
-                                  accept="image/*"
-                                  onChange={(e) => handleRoomTypeImageUpload(idx, e)}
-                                  className="hidden"
-                                  disabled={roomTypeUploadingIndex !== null}
+                                <label className="cursor-pointer">
+                                  <div className="flex items-center gap-2 px-3 py-2 bg-muted rounded-lg hover:bg-muted/80 transition-colors border border-border text-sm">
+                                    {roomTypeUploadingIndex === idx ? (
+                                      <>
+                                        <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+                                        <span className="text-muted-foreground">Uploading...</span>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Upload className="w-4 h-4 text-muted-foreground" />
+                                        <span className="text-muted-foreground">Upload Room Images</span>
+                                      </>
+                                    )}
+                                  </div>
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    multiple
+                                    onChange={(e) => handleRoomTypeImageUpload(idx, e)}
+                                    className="hidden"
+                                    disabled={roomTypeUploadingIndex !== null}
+                                  />
+                                </label>
+                                <Input
+                                  value={rt.image}
+                                  onChange={(e) => {
+                                    const val = e.target.value
+                                    setRoomTypes((prev) =>
+                                      prev.map((x, i) =>
+                                        i === idx
+                                          ? {
+                                              ...x,
+                                              image: val,
+                                              images: val ? Array.from(new Set([val, ...(x.images || [])])) : x.images || [],
+                                            }
+                                          : x
+                                      )
+                                    )
+                                  }}
+                                  placeholder="/uploads/room.jpg or URL"
+                                  className="flex-1 min-w-[240px]"
                                 />
-                              </label>
-                              <Input
-                                value={rt.image}
-                                onChange={(e) => {
-                                  const val = e.target.value
-                                  setRoomTypes((prev) => prev.map((x, i) => (i === idx ? { ...x, image: val } : x)))
-                                }}
-                                placeholder="/uploads/room.jpg or URL"
-                                className="flex-1 min-w-[240px]"
-                              />
                             </div>
                           </div>
                           <div>

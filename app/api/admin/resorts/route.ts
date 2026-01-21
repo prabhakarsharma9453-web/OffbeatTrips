@@ -24,7 +24,7 @@ function normalizeStringArray(value: any): string[] {
 
 function normalizeRoomTypes(
   value: any
-): Array<{ name: string; price?: string; image?: string; description?: string; amenities?: string[] }> {
+): Array<{ name: string; price?: string; image?: string; images?: string[]; description?: string; amenities?: string[] }> {
   if (!value) return []
   const raw = Array.isArray(value) ? value : (typeof value === 'string' ? (() => { try { return JSON.parse(value) } catch { return null } })() : null)
   if (!raw || !Array.isArray(raw)) return []
@@ -34,6 +34,12 @@ function normalizeRoomTypes(
       const name = rt?.name ?? rt?.Name ?? rt?.title ?? rt?.Title
       const price = rt?.price ?? rt?.Price ?? ''
       const image = rt?.image ?? rt?.Image ?? rt?.roomImage ?? rt?.RoomImage ?? ''
+      const images = rt?.images ?? rt?.Images
+      const imageArray = Array.isArray(images)
+        ? images.map((v: any) => String(v || '').trim()).filter(Boolean)
+        : image
+          ? [String(image || '').trim()]
+          : []
       const description = rt?.description ?? rt?.Description ?? ''
       const amenities = rt?.amenities ?? rt?.Amenities ?? rt?.roomAmenities ?? rt?.RoomAmenities
       const cleanedName = String(name || '').trim()
@@ -42,11 +48,12 @@ function normalizeRoomTypes(
         name: cleanedName,
         price: String(price || '').trim(),
         image: String(image || '').trim(),
+        images: imageArray,
         description: String(description || '').trim(),
         amenities: normalizeStringArray(amenities),
       }
     })
-    .filter(Boolean) as Array<{ name: string; price?: string; image?: string; description?: string; amenities?: string[] }>
+    .filter(Boolean) as Array<{ name: string; price?: string; image?: string; images?: string[]; description?: string; amenities?: string[] }>
 }
 
 // GET - Fetch all resorts (admin view)

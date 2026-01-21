@@ -40,24 +40,24 @@ export default function Footer() {
         <div className="flex flex-col items-center gap-3 mb-10">
           <p className="text-[10px] font-medium tracking-[0.25em] uppercase text-muted-foreground text-center">
             Let&apos;s become friend
-          </p>
-          <div className="flex gap-3">
-            {socialLinks.map((social, i) => {
-              const Icon = social.icon
-              return (
-                <a
-                  key={i}
-                  href={social.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={social.label}
-                  className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-white transition-colors"
-                >
-                  <Icon className="w-4 h-4" />
-                </a>
-              )
-            })}
-          </div>
+            </p>
+            <div className="flex gap-3">
+              {socialLinks.map((social, i) => {
+                const Icon = social.icon
+                return (
+                  <a
+                    key={i}
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={social.label}
+                    className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-white transition-colors"
+                  >
+                    <Icon className="w-4 h-4" />
+                  </a>
+                )
+              })}
+            </div>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 lg:gap-12">
@@ -166,8 +166,8 @@ export default function Footer() {
             </p>
           </div>
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-            <p className="text-muted-foreground text-sm">© 2026 OffbeatTrips. All rights reserved.</p>
-            <p className="text-muted-foreground text-sm">Made with ❤️ for adventurers worldwide</p>
+          <p className="text-muted-foreground text-sm">© 2026 OffbeatTrips. All rights reserved.</p>
+          <p className="text-muted-foreground text-sm">Made with ❤️ for adventurers worldwide</p>
           </div>
         </div>
       </div>

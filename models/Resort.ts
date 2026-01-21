@@ -10,6 +10,7 @@ export interface IResort {
     name: string
     price?: string
     image?: string
+    images?: string[]
     description?: string
     amenities?: string[]
   }>
@@ -58,6 +59,7 @@ const ResortSchema = new Schema<IResort>(
             name: { type: String, required: true },
             price: { type: String, default: '' },
             image: { type: String, default: '' },
+            images: { type: [String], default: [] },
             description: { type: String, default: '' },
             amenities: { type: [String], default: [] },
           },

@@ -5,7 +5,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import { motion } from "framer-motion"
-import { MapPin, Star, Check, X, MessageCircle, Home, Loader2, Sparkles, ChevronLeft, ChevronRight, Maximize2 } from "lucide-react"
+import { MapPin, Star, Check, X, MessageCircle, Home, Loader2, Sparkles, ChevronLeft, ChevronRight, Maximize2, Wifi, Utensils, Car, Dumbbell, Waves, Bath, Leaf, ShieldCheck } from "lucide-react"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { Button } from "@/components/ui/button"
@@ -57,6 +57,8 @@ export default function ResortDetailsPage() {
   const [isAutoScrolling, setIsAutoScrolling] = useState(true)
   const [selectedRoomType, setSelectedRoomType] = useState<string>("")
   const [expandedRoomType, setExpandedRoomType] = useState<string | null>(null)
+  const [roomGalleryIndex, setRoomGalleryIndex] = useState<Record<string, number>>({})
+  const [isOverviewExpanded, setIsOverviewExpanded] = useState(false)
 
   useEffect(() => {
     const fetchResort = async () => {
@@ -202,6 +204,21 @@ export default function ResortDetailsPage() {
     )
   }
 
+  const overviewText = (resort.description || "").trim()
+  const shouldShowReadMore = overviewText.length > 180
+
+  const getAmenityIcon = (amenity: string) => {
+    const a = String(amenity || "").toLowerCase()
+    if (a.includes("wifi") || a.includes("wi-fi") || a.includes("internet")) return Wifi
+    if (a.includes("pool") || a.includes("swim")) return Waves
+    if (a.includes("gym") || a.includes("fitness")) return Dumbbell
+    if (a.includes("spa") || a.includes("massage")) return Leaf
+    if (a.includes("parking") || a.includes("car")) return Car
+    if (a.includes("food") || a.includes("restaurant") || a.includes("breakfast") || a.includes("dining")) return Utensils
+    if (a.includes("bath") || a.includes("shower")) return Bath
+    return ShieldCheck
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -279,10 +296,7 @@ export default function ResortDetailsPage() {
                       </>
                     )}
 
-                    {/* Gallery Icon */}
-                    <div className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 w-9 h-9 sm:w-10 sm:h-10 bg-black/60 hover:bg-black/80 backdrop-blur-sm rounded-full flex items-center justify-center text-white cursor-pointer transition-all duration-200 z-20">
-                      <Maximize2 className="w-4 h-4 sm:w-5 sm:h-5" />
-                    </div>
+                    
                   </>
                 )}
               </div>
@@ -315,12 +329,12 @@ export default function ResortDetailsPage() {
                     ))}
                   </div>
                   {/* Auto-scroll indicator */}
-                  {galleryImages.length > 1 && isAutoScrolling && (
+                  {/* {galleryImages.length > 1 && isAutoScrolling && (
                     <div className="absolute top-2 right-4 flex items-center gap-2 text-xs text-muted-foreground">
                       <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
                       <span>Auto-scrolling</span>
                     </div>
-                  )}
+                  )} */}
                 </div>
               )}
 
@@ -370,7 +384,7 @@ export default function ResortDetailsPage() {
                       <p className="text-2xl sm:text-4xl font-bold text-primary">{displayedPrice}</p>
                       <p className="text-xs text-muted-foreground mt-1">Per night</p>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 mb-6">
                       <Button
                         onClick={handleWhatsApp}
                         className="bg-primary hover:bg-primary/90 text-white rounded-full px-5 sm:px-6"
@@ -391,6 +405,73 @@ export default function ResortDetailsPage() {
                 </div>
               </div>
             </motion.div>
+
+            {/* Overview + Key Amenities (below carousel) */}
+            {(overviewText || (resort.amenities && resort.amenities.length > 0)) && (
+              <motion.section
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.45, delay: 0.03 }}
+                className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6"
+              >
+                {/* Overview */}
+                <div className="bg-card border border-border rounded-2xl p-4 sm:p-6">
+                  <div className="flex items-center justify-between gap-3 mb-2">
+                    <h2 className="text-xl sm:text-2xl font-bold text-white">Overview</h2>
+                    {shouldShowReadMore ? (
+                      <Button
+                        type="button"
+                        variant="link"
+                        className="px-0 h-auto text-primary hover:text-primary/90"
+                        onClick={() => setIsOverviewExpanded((v) => !v)}
+                      >
+                        {isOverviewExpanded ? "Read less" : "Read more"}
+                      </Button>
+                    ) : null}
+                  </div>
+
+                  {overviewText ? (
+                    <p
+                      className={`text-sm sm:text-base text-muted-foreground leading-relaxed ${
+                        isOverviewExpanded ? "" : "line-clamp-3"
+                      }`}
+                    >
+                      {overviewText}
+                    </p>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">No overview added yet.</p>
+                  )}
+                </div>
+
+                {/* Key Amenities */}
+                <div className="bg-card border border-border rounded-2xl p-4 sm:p-6">
+                  <div className="flex items-center justify-between gap-3 mb-3">
+                    <h2 className="text-xl sm:text-2xl font-bold text-white">Key Amenities</h2>
+                    <span className="text-xs text-muted-foreground">Top picks</span>
+                  </div>
+
+                  {resort.amenities && resort.amenities.length > 0 ? (
+                    <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                      {resort.amenities.slice(0, 6).map((amenity, idx) => {
+                        const Icon = getAmenityIcon(amenity)
+                        return (
+                          <div
+                            key={`${amenity}-${idx}`}
+                            className="flex items-center gap-2 rounded-xl border border-border/60 bg-background/40 px-2.5 py-2"
+                            title={amenity}
+                          >
+                            <Icon className="w-4 h-4 text-primary shrink-0" />
+                            <span className="text-xs sm:text-sm text-white/90 truncate">{amenity}</span>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">No amenities added yet.</p>
+                  )}
+                </div>
+              </motion.section>
+            )}
 
             {/* Room Types */}
             {roomTypes.length > 0 && (
@@ -418,8 +499,16 @@ export default function ResortDetailsPage() {
                 <div className="space-y-10">
                   {roomTypes.map((rt, index) => {
                     const selected = (selectedRoomType || roomTypes[0]?.name) === rt.name
-                    const roomImageSrc =
-                      rt.image?.trim() || galleryImages[0] || resort.image || "/placeholder.svg"
+                    const roomImages =
+                      Array.isArray((rt as any).images) && (rt as any).images.length > 0
+                        ? (rt as any).images.filter((img: any) => typeof img === "string" && img.trim())
+                        : rt.image?.trim()
+                          ? [rt.image.trim()]
+                          : galleryImages.length > 0
+                            ? galleryImages
+                            : [resort.image || "/placeholder.svg"]
+                    const activeRoomIndex = roomGalleryIndex[rt.name] ?? 0
+                    const activeRoomImage = roomImages[activeRoomIndex] || roomImages[0] || "/placeholder.svg"
                     const expanded = expandedRoomType === rt.name
                     const roomDescription =
                       rt.description?.trim() ||
@@ -438,21 +527,46 @@ export default function ResortDetailsPage() {
                         <div className="lg:hidden p-5">
                           <div className="grid grid-cols-[140px_1fr] gap-4 items-start">
                             <div>
-                              <div
-                                className="relative w-full h-[120px] rounded-2xl overflow-hidden border border-border bg-muted/20"
-                                onClick={() => setSelectedRoomType(rt.name)}
-                                role="button"
-                                tabIndex={0}
-                              >
+                              <div className="relative w-full h-[120px] rounded-2xl overflow-hidden border border-border bg-muted/20">
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img
-                                  src={roomImageSrc}
+                                  src={activeRoomImage}
                                   alt={`${rt.name} room image`}
                                   className="w-full h-full object-cover"
                                   onError={(e) => {
                                     ;(e.target as HTMLImageElement).src = "/placeholder.svg"
                                   }}
                                 />
+                                {roomImages.length > 1 && (
+                                  <>
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        setRoomGalleryIndex((prev) => ({
+                                          ...prev,
+                                          [rt.name]: (activeRoomIndex - 1 + roomImages.length) % roomImages.length,
+                                        }))
+                                      }
+                                      className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/80 text-white rounded-full w-7 h-7 flex items-center justify-center"
+                                      aria-label="Previous room image"
+                                    >
+                                      <ChevronLeft className="w-4 h-4" />
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        setRoomGalleryIndex((prev) => ({
+                                          ...prev,
+                                          [rt.name]: (activeRoomIndex + 1) % roomImages.length,
+                                        }))
+                                      }
+                                      className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/80 text-white rounded-full w-7 h-7 flex items-center justify-center"
+                                      aria-label="Next room image"
+                                    >
+                                      <ChevronRight className="w-4 h-4" />
+                                    </button>
+                                  </>
+                                )}
                                 <div className="absolute inset-x-0 bottom-0 bg-black/60 backdrop-blur-sm px-2 py-1.5">
                                   <p className="text-xs font-semibold text-white truncate">{rt.name}</p>
                                 </div>
@@ -617,14 +731,75 @@ export default function ResortDetailsPage() {
                             <div className="rounded-2xl overflow-hidden border border-border bg-muted/20">
                               {/* eslint-disable-next-line @next/next/no-img-element */}
                               <img
-                                src={roomImageSrc}
+                                src={activeRoomImage}
                                 alt={`${rt.name} room image`}
                                 className="w-full h-[420px] object-cover"
                                 onError={(e) => {
                                   ;(e.target as HTMLImageElement).src = "/placeholder.svg"
                                 }}
                               />
+                              {roomImages.length > 1 && (
+                                <div className="absolute inset-0 flex items-center justify-between px-3">
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      setRoomGalleryIndex((prev) => ({
+                                        ...prev,
+                                        [rt.name]: (activeRoomIndex - 1 + roomImages.length) % roomImages.length,
+                                      }))
+                                    }
+                                    className="bg-black/60 hover:bg-black/80 text-white rounded-full w-9 h-9 flex items-center justify-center"
+                                    aria-label="Previous room image"
+                                  >
+                                    <ChevronLeft className="w-5 h-5" />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      setRoomGalleryIndex((prev) => ({
+                                        ...prev,
+                                        [rt.name]: (activeRoomIndex + 1) % roomImages.length,
+                                      }))
+                                    }
+                                    className="bg-black/60 hover:bg-black/80 text-white rounded-full w-9 h-9 flex items-center justify-center"
+                                    aria-label="Next room image"
+                                  >
+                                    <ChevronRight className="w-5 h-5" />
+                                  </button>
+                                </div>
+                              )}
                             </div>
+                            {roomImages.length > 1 && (
+                              <div className="flex gap-2 mt-3 overflow-x-auto hide-scrollbar">
+                                {roomImages.map((img: string, idxThumb: number) => (
+                                  <button
+                                    key={`${img}-${idxThumb}`}
+                                    type="button"
+                                    onClick={() =>
+                                      setRoomGalleryIndex((prev) => ({
+                                        ...prev,
+                                        [rt.name]: idxThumb,
+                                      }))
+                                    }
+                                    className={`shrink-0 rounded-lg overflow-hidden border transition-all ${
+                                      idxThumb === activeRoomIndex
+                                        ? "border-primary scale-105"
+                                        : "border-border hover:border-primary/50"
+                                    }`}
+                                  >
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img
+                                      src={img || "/placeholder.svg"}
+                                      alt={`${rt.name} thumbnail ${idxThumb + 1}`}
+                                      className="w-16 h-12 object-cover"
+                                      onError={(e) => {
+                                        ;(e.target as HTMLImageElement).src = "/placeholder.svg"
+                                      }}
+                                    />
+                                  </button>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -638,24 +813,7 @@ export default function ResortDetailsPage() {
             <div className="grid lg:grid-cols-[1fr_400px] gap-8">
               {/* Left Column - Main Content */}
               <div className="space-y-8">
-                {/* Overview */}
-                {resort.description && (
-                  <motion.section
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.1 }}
-                    className="bg-card border border-border rounded-3xl p-6 sm:p-8 space-y-4"
-                  >
-                    <h2 className="text-2xl font-bold text-white">Overview</h2>
-                    <p className="text-muted-foreground leading-relaxed">{resort.description}</p>
-                    {resort.addressTile && (
-                      <div className="flex items-start gap-2 pt-2">
-                        <MapPin className="w-4 h-4 text-primary mt-1 flex-shrink-0" />
-                        <p className="text-sm text-muted-foreground">{resort.addressTile}</p>
-                      </div>
-                    )}
-                  </motion.section>
-                )}
+                
 
                 {/* Activities */}
                 {resort.activities && resort.activities.length > 0 && (
@@ -680,60 +838,9 @@ export default function ResortDetailsPage() {
                   </motion.section>
                 )}
 
-                {/* Amenities */}
-                {resort.amenities && resort.amenities.length > 0 && (
-                  <motion.section
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.3 }}
-                    className="bg-card border border-border rounded-3xl p-6 sm:p-8"
-                  >
-                    <h2 className="text-2xl font-bold text-white mb-4">Amenities</h2>
-                    <div className="grid gap-3 sm:grid-cols-2">
-                      {resort.amenities.map((amenity, idx) => (
-                        <div
-                          key={idx}
-                          className="flex items-center gap-2 rounded-2xl border border-primary/15 bg-primary/5 px-4 py-3 text-sm text-muted-foreground"
-                        >
-                          <Check className="h-4 w-4 text-primary shrink-0" />
-                          <span>{amenity}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </motion.section>
-                )}
+               
 
-                {/* Additional Info */}
-                {(resort.mood || resort.tags) && (
-                  <motion.section
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.4 }}
-                    className="bg-card border border-border rounded-3xl p-6 sm:p-8 space-y-4"
-                  >
-                    {resort.mood && (
-                      <div>
-                        <h3 className="text-lg font-semibold text-white mb-2">Mood</h3>
-                        <p className="text-muted-foreground">{resort.mood}</p>
-                      </div>
-                    )}
-                    {resort.tags && (
-                      <div>
-                        <h3 className="text-lg font-semibold text-white mb-2">Tags</h3>
-                        <div className="flex flex-wrap gap-2">
-                          {resort.tags.split(',').map((tag, idx) => (
-                            <span
-                              key={idx}
-                              className="px-3 py-1 rounded-full bg-muted text-xs text-muted-foreground"
-                            >
-                              {tag.trim()}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </motion.section>
-                )}
+               
               </div>
 
               {/* Right Column - Sticky Price Card */}
@@ -743,57 +850,7 @@ export default function ResortDetailsPage() {
                 transition={{ duration: 0.5, delay: 0.2 }}
                 className="lg:sticky lg:top-28 h-fit"
               >
-                <div className="bg-card border border-border rounded-3xl p-6 sm:p-7 shadow-xl space-y-5">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-xs text-muted-foreground">Starting from</p>
-                      <p className="text-2xl font-bold text-primary mt-1">{resort.price}</p>
-                      <p className="text-xs text-muted-foreground mt-1">Per night</p>
-                    </div>
-                    <div className="inline-flex items-center gap-1 rounded-full bg-background/80 px-3 py-1 border border-border">
-                      <Star className="h-4 w-4 text-accent fill-accent" />
-                      <span className="text-sm font-semibold text-white">{resort.rating}</span>
-                    </div>
-                  </div>
-                  
-                  {resort.amenities && resort.amenities.length > 0 && (
-                    <div className="space-y-2 pt-1">
-                      <p className="text-xs font-semibold text-white">Key Amenities</p>
-                      <div className="flex flex-wrap gap-1.5">
-                        {resort.amenities.slice(0, 6).map((amenity, idx) => (
-                          <span
-                            key={idx}
-                            className="rounded-full bg-muted px-2 py-1 text-[11px] text-muted-foreground"
-                          >
-                            {amenity}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="space-y-3 pt-2">
-                    <Button
-                      onClick={handleWhatsApp}
-                      className="w-full rounded-full bg-primary hover:bg-primary/90 text-white"
-                      size="lg"
-                    >
-                      Book This Resort
-                    </Button>
-                    <Button
-                      onClick={handleWhatsApp}
-                      variant="outline"
-                      className="w-full rounded-full border-primary text-primary hover:bg-primary/10"
-                      size="lg"
-                    >
-                      <MessageCircle className="w-4 h-4 mr-2" />
-                      Chat on WhatsApp
-                    </Button>
-                  </div>
-                  <p className="text-[11px] text-muted-foreground pt-2">
-                    No hidden charges. Customized quotes available on request.
-                  </p>
-                </div>
+               
               </motion.aside>
             </div>
           </section>

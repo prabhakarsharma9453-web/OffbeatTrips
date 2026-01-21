@@ -118,7 +118,10 @@ export default function FeaturesSection() {
             {features.map((feature, index) => {
               const IconComponent = feature.icon
               return (
-                <CarouselItem key={feature.id} className="pl-2 md:pl-4 basis-full md:basis-1/2 lg:basis-1/5">
+                <CarouselItem
+                  key={feature.id}
+                  className="pl-2 md:pl-4 basis-1/2 md:basis-1/2 lg:basis-1/5"
+                >
                   <Link
                     href={feature.href}
                     className="text-center bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-3 sm:p-4 lg:p-5 hover:border-primary/50 transition-all duration-300 cursor-pointer block h-full"
