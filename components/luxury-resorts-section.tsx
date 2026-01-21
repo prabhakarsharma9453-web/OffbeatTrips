@@ -213,7 +213,7 @@ export default function LuxuryResortsSection() {
         </div>
 
         <Tabs defaultValue="domestic" className="w-full">
-          <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-6 sm:mb-8 lg:mb-8 bg-muted rounded-full">
+          <TabsList className="grid w-full max-w-md mx-auto grid-cols-1 mb-6 sm:mb-8 lg:mb-8 bg-muted rounded-full">
           <TabsTrigger
               value="domestic"
               className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-white rounded-full transition-all duration-300"
@@ -221,13 +221,13 @@ export default function LuxuryResortsSection() {
               <MapPin className="w-4 h-4" />
               Domestic
             </TabsTrigger>
-            <TabsTrigger
+            {/* <TabsTrigger
               value="international"
               className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-white rounded-full transition-all duration-300"
             >
               <Globe className="w-4 h-4" />
               International
-            </TabsTrigger>
+            </TabsTrigger> */}
           </TabsList>
 
           <TabsContent value="international" className="mt-0">

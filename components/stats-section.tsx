@@ -31,12 +31,13 @@ export default function StatsSection() {
             Where Every Journey Creates <span className="text-primary">Happy Travelers</span>
           </h2>
         </div>
-        <div className={`grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 ${isVisible ? "animate-fade-in-up" : "opacity-0"}`}>
+        <div className={`grid grid-cols-2 md:grid-cols-5 gap-3 sm:gap-4 lg:gap-6 ${isVisible ? "animate-fade-in-up" : "opacity-0"}`}>
           {[
             { value: "10K+", label: "Happy Travelers" },
             { value: "500+", label: "Destinations" },
             { value: "4.9/5", label: "Average Rating" },
             { value: "98%", label: "Satisfaction Rate" },
+            { value: "7Y", label: "7 Years of trust" }
           ].map((stat, index) => (
             <div
               key={index}
