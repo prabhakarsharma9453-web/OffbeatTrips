@@ -11,71 +11,22 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel"
 
-const fallbackTestimonials = [
-  {
-    id: 1,
-    name: "Sarah Johnson",
-    location: "New York, USA",
-    rating: 5,
-    image: "/placeholder.svg?height=80&width=80",
-    text: "My trip to the Swiss Alps was absolutely magical! Every detail was perfectly planned, and the guides were knowledgeable and friendly. I can't wait to book my next adventure with OffbeatTrips.",
-    package: "Swiss Alps Explorer",
-  },
-  {
-    id: 2,
-    name: "Rajesh Kumar",
-    location: "Mumbai, India",
-    rating: 5,
-    image: "/placeholder.svg?height=80&width=80",
-    text: "The Ladakh adventure exceeded all my expectations. The landscapes were breathtaking, and the cultural experiences were authentic. Highly recommend for anyone seeking a true adventure!",
-    package: "Ladakh Adventure",
-  },
-  {
-    id: 3,
-    name: "Emily Chen",
-    location: "Sydney, Australia",
-    rating: 5,
-    image: "/placeholder.svg?height=80&width=80",
-    text: "The Maldives resort was paradise on earth. The luxury accommodations, crystal-clear waters, and impeccable service made it an unforgettable experience. Worth every penny!",
-    package: "Maldives Paradise Resort",
-  },
-  {
-    id: 4,
-    name: "Michael Thompson",
-    location: "London, UK",
-    rating: 5,
-    image: "/placeholder.svg?height=80&width=80",
-    text: "Norway fjords tour was spectacular! The Northern Lights experience was the highlight of my trip. The team at OffbeatTrips knows how to create memorable journeys.",
-    package: "Norwegian Fjords",
-  },
-  {
-    id: 5,
-    name: "Priya Sharma",
-    location: "Delhi, India",
-    rating: 5,
-    image: "/placeholder.svg?height=80&width=80",
-    text: "Kerala backwaters was so peaceful and rejuvenating. The houseboat stay and Ayurveda spa treatments were exactly what I needed. A perfect blend of relaxation and culture.",
-    package: "Kerala Backwaters",
-  },
-  {
-    id: 6,
-    name: "David Martinez",
-    location: "Barcelona, Spain",
-    rating: 5,
-    image: "/placeholder.svg?height=80&width=80",
-    text: "Thailand trip was amazing! From island hopping to delicious cuisine, everything was perfect. The local guides were fantastic and made us feel like family.",
-    package: "Thailand Paradise",
-  },
-]
-
-type TestimonialItem = (typeof fallbackTestimonials)[0] & { id?: string }
+type TestimonialItem = {
+  id?: string
+  name: string
+  location: string
+  rating: number
+  image: string
+  text: string
+  package: string
+}
 
 export default function TestimonialsSection() {
   const [isVisible, setIsVisible] = useState(false)
   const [api, setApi] = useState<any>(null)
   const [isMobile, setIsMobile] = useState(false)
   const sectionRef = useRef<HTMLElement>(null)
-  const [items, setItems] = useState<TestimonialItem[]>(fallbackTestimonials)
+  const [items, setItems] = useState<TestimonialItem[]>([])
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -145,16 +96,16 @@ export default function TestimonialsSection() {
       <div className="absolute top-3 sm:top-4 right-3 sm:right-4 opacity-10 group-hover:opacity-20 transition-opacity">
         <Quote className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 text-primary" />
       </div>
-      <div className="relative z-10">
+      <div className="relative z-10 flex flex-col h-full">
         <div className="flex items-center gap-1 mb-2 sm:mb-3">
           {[...Array(testimonial.rating)].map((_, i) => (
             <Star key={i} className="w-3.5 sm:w-4 h-3.5 sm:h-4 text-accent fill-accent" />
           ))}
         </div>
-        <p className="text-white/90 text-sm sm:text-base leading-relaxed mb-3 sm:mb-4 lg:mb-5 italic">
+        <p className="text-white/90 text-sm sm:text-base leading-relaxed mb-3 sm:mb-4 lg:mb-5 italic flex-1">
           &ldquo;{testimonial.text}&rdquo;
         </p>
-        <div className="flex items-center gap-2 sm:gap-3 pt-3 sm:pt-4 lg:pt-5 border-t border-border/50">
+        <div className="flex items-center gap-2 sm:gap-3 pt-3 sm:pt-4 lg:pt-5 border-t border-border/50 mt-auto">
           <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 p-0.5 flex-shrink-0">
             <div className="w-full h-full rounded-full bg-background flex items-center justify-center overflow-hidden">
               <img

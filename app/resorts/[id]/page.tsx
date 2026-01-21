@@ -149,6 +149,37 @@ export default function ResortDetailsPage() {
     return () => clearInterval(interval)
   }, [resort, galleryImages.length, isAutoScrolling])
 
+  // Auto-scroll room type image carousels
+  useEffect(() => {
+    if (!resort || !roomTypes.length) return
+
+    const interval = setInterval(() => {
+      setRoomGalleryIndex((prev) => {
+        const next: Record<string, number> = { ...prev }
+
+        roomTypes.forEach((rt) => {
+          const allImages =
+            Array.isArray((rt as any).images) && (rt as any).images.length > 0
+              ? (rt as any).images.filter((img: any) => typeof img === "string" && img.trim())
+              : rt.image?.trim()
+                ? [rt.image.trim()]
+                : galleryImages.length > 0
+                  ? galleryImages
+                  : [resort.image || "/placeholder.svg"]
+
+          if (allImages.length > 1) {
+            const current = prev[rt.name] ?? 0
+            next[rt.name] = (current + 1) % allImages.length
+          }
+        })
+
+        return next
+      })
+    }, 6000) // auto-scroll room images every 6 seconds
+
+    return () => clearInterval(interval)
+  }, [resort, roomTypes, galleryImages])
+
   // Keyboard navigation
   useEffect(() => {
     if (!resort || galleryImages.length <= 1) return
