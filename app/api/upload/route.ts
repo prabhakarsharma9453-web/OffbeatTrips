@@ -1,17 +1,28 @@
 import { NextResponse } from 'next/server'
 import { NextRequest } from 'next/server'
-import { writeFile, mkdir } from 'fs/promises'
-import { join } from 'path'
-import { existsSync } from 'fs'
 import { requireAdmin } from '@/lib/auth-middleware'
+import { uploadToCloudinary } from '@/lib/cloudinary'
 
-// POST - Upload image file
+// POST - Upload image file to Cloudinary
 export async function POST(request: NextRequest) {
   try {
     const authResult = await requireAdmin(request)
 
     if (authResult instanceof NextResponse) {
       return authResult
+    }
+
+    // Check if Cloudinary is configured
+    if (!process.env.CLOUDINARY_CLOUD_NAME || 
+        !process.env.CLOUDINARY_API_KEY || 
+        !process.env.CLOUDINARY_API_SECRET) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Cloudinary is not configured. Please set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET environment variables.' 
+        },
+        { status: 500 }
+      )
     }
 
     const formData = await request.formData()
@@ -32,47 +43,31 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Validate file size (max 5MB)
-    const maxSize = 5 * 1024 * 1024 // 5MB
+    // Validate file size (max 10MB for Cloudinary)
+    const maxSize = 10 * 1024 * 1024 // 10MB
     if (file.size > maxSize) {
       return NextResponse.json(
-        { success: false, error: 'File size must be less than 5MB' },
+        { success: false, error: 'File size must be less than 10MB' },
         { status: 400 }
       )
     }
 
-    // Create uploads directory if it doesn't exist
-    const uploadsDir = join(process.cwd(), 'public', 'uploads')
-    if (!existsSync(uploadsDir)) {
-      await mkdir(uploadsDir, { recursive: true })
-    }
+    // Upload to Cloudinary
+    const secureUrl = await uploadToCloudinary(file, 'travel-website')
 
-    // Generate unique filename
-    const timestamp = Date.now()
-    const randomString = Math.random().toString(36).substring(2, 15)
-    const fileExtension = file.name.split('.').pop()
-    const fileName = `${timestamp}-${randomString}.${fileExtension}`
-    const filePath = join(uploadsDir, fileName)
-
-    // Convert file to buffer and save
-    const bytes = await file.arrayBuffer()
-    const buffer = Buffer.from(bytes)
-    await writeFile(filePath, buffer)
-
-    // Return the public URL path
-    const publicPath = `/uploads/${fileName}`
-
+    // Return the secure URL
     return NextResponse.json({
       success: true,
-      path: publicPath,
-      message: 'File uploaded successfully',
+      path: secureUrl, // Return Cloudinary URL as path for backward compatibility
+      url: secureUrl, // Also return as url for clarity
+      message: 'File uploaded successfully to Cloudinary',
     })
   } catch (error) {
-    console.error('Error uploading file:', error)
+    console.error('Error uploading file to Cloudinary:', error)
     return NextResponse.json(
       {
         success: false,
-        error: error instanceof Error ? error.message : 'Failed to upload file',
+        error: error instanceof Error ? error.message : 'Failed to upload file to Cloudinary',
       },
       { status: 500 }
     )
