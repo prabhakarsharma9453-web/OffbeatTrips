@@ -57,6 +57,7 @@ export default function ResortDetailsPage() {
   const [isAutoScrolling, setIsAutoScrolling] = useState(true)
   const [selectedRoomType, setSelectedRoomType] = useState<string>("")
   const [expandedRoomType, setExpandedRoomType] = useState<string | null>(null)
+  const [expandedRoomOverview, setExpandedRoomOverview] = useState<Record<string, boolean>>({})
   const [roomGalleryIndex, setRoomGalleryIndex] = useState<Record<string, number>>({})
   const [isOverviewExpanded, setIsOverviewExpanded] = useState(false)
 
@@ -527,7 +528,7 @@ export default function ResortDetailsPage() {
                   </div>
                 </div>
 
-                <div className="space-y-10">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
                   {roomTypes.map((rt, index) => {
                     const selected = (selectedRoomType || roomTypes[0]?.name) === rt.name
                     const roomImages =
@@ -541,18 +542,16 @@ export default function ResortDetailsPage() {
                     const activeRoomIndex = roomGalleryIndex[rt.name] ?? 0
                     const activeRoomImage = roomImages[activeRoomIndex] || roomImages[0] || "/placeholder.svg"
                     const expanded = expandedRoomType === rt.name
-                    const roomDescription =
-                      rt.description?.trim() ||
-                      (rt.amenities?.length
-                        ? `Includes: ${rt.amenities.slice(0, 6).join(", ")}${rt.amenities.length > 6 ? "..." : ""}`
-                        : "Comfortable stay with premium in-room features.")
+                    const roomOverview = rt.description?.trim() || "Comfortable stay with premium in-room features."
+                    const isOverviewExpanded = expandedRoomOverview[rt.name] || false
+                    const shouldShowReadMore = roomOverview.length > 150 // Show read more if overview is longer than 150 chars
 
                     return (
                       <div
                         key={rt.name}
                         className={`overflow-hidden rounded-3xl border ${
                           selected ? "border-primary/60 shadow-lg shadow-primary/10" : "border-border"
-                        } bg-card`}
+                        } bg-card flex flex-col`}
                       >
                         {/* Mobile layout */}
                         <div className="lg:hidden p-5">
@@ -603,48 +602,52 @@ export default function ResortDetailsPage() {
                                 </div>
                               </div>
 
-                              <p className="mt-2 text-xs text-muted-foreground leading-relaxed line-clamp-4">
-                                {roomDescription}
-                              </p>
-
                               <div className="mt-2">
                                 <p className="text-[11px] text-muted-foreground">Per night</p>
                                 <p className="text-sm font-bold text-primary">{rt.price || resort.price}</p>
                               </div>
                             </div>
 
-                            <div>
-                              <div className="flex items-center justify-between gap-3 mb-2">
-                                <p className="text-xs font-semibold text-white">Room amenities</p>
-                                {rt.amenities?.length > 4 ? (
+                            <div className="flex-1">
+                              <h3 className="text-sm font-semibold text-white mb-2">{rt.name}</h3>
+                              
+                              {/* Overview with Read More */}
+                              <div className="space-y-1 mb-3">
+                                <p className={`text-xs text-muted-foreground leading-relaxed ${
+                                  shouldShowReadMore && !isOverviewExpanded ? "line-clamp-2" : ""
+                                }`}>
+                                  {roomOverview}
+                                </p>
+                                {shouldShowReadMore && (
                                   <button
                                     type="button"
-                                    className="text-xs text-primary underline underline-offset-4"
-                                    onClick={() =>
-                                      setExpandedRoomType((prev) => (prev === rt.name ? null : rt.name))
-                                    }
+                                    onClick={() => setExpandedRoomOverview((prev) => ({
+                                      ...prev,
+                                      [rt.name]: !prev[rt.name]
+                                    }))}
+                                    className="text-xs text-primary hover:text-primary/80 underline underline-offset-2 transition-colors"
                                   >
-                                    {expanded ? "Less" : "More"}
+                                    {isOverviewExpanded ? "Read less" : "Read more"}
                                   </button>
-                                ) : null}
+                                )}
                               </div>
 
-                              {rt.amenities?.length ? (
-                                <div className="space-y-2">
-                                  {(expanded ? rt.amenities : rt.amenities.slice(0, 4)).map((amenity, idx) => (
-                                    <div
-                                      key={idx}
-                                      className="flex items-start gap-2 rounded-xl border border-primary/12 bg-primary/5 px-3 py-2 text-xs text-muted-foreground"
-                                    >
-                                      <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                                      <span className="leading-snug">{amenity}</span>
-                                    </div>
-                                  ))}
+                              {/* Room Amenities - Always visible, smaller font */}
+                              {rt.amenities && rt.amenities.length > 0 && (
+                                <div className="mb-3">
+                                  <p className="text-[10px] font-semibold text-white/80 mb-1.5">Room Amenities</p>
+                                  <div className="flex flex-wrap gap-1">
+                                    {rt.amenities.map((amenity, idx) => (
+                                      <div
+                                        key={idx}
+                                        className="flex items-center gap-1 rounded-md border border-primary/10 bg-primary/5 px-1.5 py-0.5"
+                                      >
+                                        <Check className="h-2.5 w-2.5 text-primary shrink-0" />
+                                        <span className="text-[9px] text-muted-foreground">{amenity}</span>
+                                      </div>
+                                    ))}
+                                  </div>
                                 </div>
-                              ) : (
-                                <p className="text-xs text-muted-foreground">
-                                  No amenities added for this room type.
-                                </p>
                               )}
 
                               <div className="mt-4 flex flex-wrap gap-2">
@@ -678,93 +681,15 @@ export default function ResortDetailsPage() {
                         </div>
 
                         {/* Desktop layout */}
-                        <div
-                          className={`hidden lg:flex ${
-                            index % 2 === 1 ? "flex-row-reverse" : "flex-row"
-                          }`}
-                        >
-                          {/* Text Panel */}
-                          <div className="flex-1 p-12 flex flex-col justify-center">
-                            <div className="flex items-start justify-between gap-6">
-                              <div>
-                                <h3 className="text-4xl font-semibold text-white">{rt.name}</h3>
-                                <p className="text-sm text-muted-foreground mt-2 max-w-2xl">
-                                  {roomDescription}
-                                </p>
-                              </div>
-                              <div className="text-right">
-                                <p className="text-xs text-muted-foreground">Per night</p>
-                                <p className="text-2xl font-bold text-primary">
-                                  {rt.price || resort.price}
-                                </p>
-                              </div>
-                            </div>
-
-                            <div className="mt-6 flex items-center gap-3">
-                              <Button
-                                type="button"
-                                onClick={() => setSelectedRoomType(rt.name)}
-                                className={`rounded-full ${
-                                  selected
-                                    ? "bg-primary hover:bg-primary/90"
-                                    : "bg-primary/20 hover:bg-primary/25 text-white border border-primary/30"
-                                }`}
-                                variant={selected ? "default" : "secondary"}
-                              >
-                                {selected ? "Selected" : "Select this room"}
-                              </Button>
-                              <Button
-                                type="button"
-                                variant="outline"
-                                onClick={() => setExpandedRoomType((prev) => (prev === rt.name ? null : rt.name))}
-                                className="rounded-full"
-                              >
-                                {expanded ? "Hide details" : "More →"}
-                              </Button>
-                              <Button
-                                type="button"
-                                onClick={() => {
-                                  setSelectedRoomType(rt.name)
-                                  handleWhatsApp()
-                                }}
-                                className="rounded-full bg-primary hover:bg-primary/90"
-                              >
-                                Book Now
-                              </Button>
-                            </div>
-
-                            {expanded && (
-                              <div className="mt-6">
-                                <h4 className="text-sm font-semibold text-white mb-3">Room Amenities</h4>
-                                {rt.amenities?.length ? (
-                                  <div className="grid gap-3 sm:grid-cols-2">
-                                    {rt.amenities.map((amenity, idx) => (
-                                      <div
-                                        key={idx}
-                                        className="flex items-center gap-2 rounded-2xl border border-primary/15 bg-primary/5 px-4 py-3 text-sm text-muted-foreground"
-                                      >
-                                        <Check className="h-4 w-4 text-primary shrink-0" />
-                                        <span>{amenity}</span>
-                                      </div>
-                                    ))}
-                                  </div>
-                                ) : (
-                                  <p className="text-sm text-muted-foreground">
-                                    No room amenities specified for this room type.
-                                  </p>
-                                )}
-                              </div>
-                            )}
-                          </div>
-
+                        <div className="hidden lg:flex flex-col">
                           {/* Image Panel */}
-                          <div className="w-[48%] bg-background/20 p-8">
-                            <div className="rounded-2xl overflow-hidden border border-border bg-muted/20">
+                          <div className="w-full bg-background/20 p-6">
+                            <div className="relative rounded-2xl overflow-hidden border border-border bg-muted/20">
                               {/* eslint-disable-next-line @next/next/no-img-element */}
                               <img
                                 src={activeRoomImage}
                                 alt={`${rt.name} room image`}
-                                className="w-full h-[420px] object-cover"
+                                className="w-full h-[300px] object-cover"
                                 onError={(e) => {
                                   ;(e.target as HTMLImageElement).src = "/placeholder.svg"
                                 }}
@@ -822,7 +747,7 @@ export default function ResortDetailsPage() {
                                     <img
                                       src={img || "/placeholder.svg"}
                                       alt={`${rt.name} thumbnail ${idxThumb + 1}`}
-                                      className="w-16 h-12 object-cover"
+                                      className="w-16 h-16 object-cover"
                                       onError={(e) => {
                                         ;(e.target as HTMLImageElement).src = "/placeholder.svg"
                                       }}
@@ -831,6 +756,73 @@ export default function ResortDetailsPage() {
                                 ))}
                               </div>
                             )}
+                          </div>
+
+                          {/* Text Panel */}
+                          <div className="flex-1 p-6 flex flex-col justify-center">
+                            <div className="flex items-start justify-between gap-4 mb-4">
+                              <div className="flex-1">
+                                <h3 className="text-xl font-semibold text-white mb-2">{rt.name}</h3>
+                                {/* Overview with Read More */}
+                                <div className="space-y-2">
+                                  <p className={`text-xs text-muted-foreground leading-relaxed ${
+                                    shouldShowReadMore && !isOverviewExpanded ? "line-clamp-2" : ""
+                                  }`}>
+                                    {roomOverview}
+                                  </p>
+                                  {shouldShowReadMore && (
+                                    <button
+                                      type="button"
+                                      onClick={() => setExpandedRoomOverview((prev) => ({
+                                        ...prev,
+                                        [rt.name]: !prev[rt.name]
+                                      }))}
+                                      className="text-xs text-primary hover:text-primary/80 underline underline-offset-2 transition-colors"
+                                    >
+                                      {isOverviewExpanded ? "Read less" : "Read more"}
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="text-right flex-shrink-0">
+                                <p className="text-xs text-muted-foreground">Per night</p>
+                                <p className="text-lg font-bold text-primary">
+                                  {rt.price || resort.price}
+                                </p>
+                              </div>
+                            </div>
+
+                            {/* Room Amenities - Always visible, smaller font */}
+                            {rt.amenities && rt.amenities.length > 0 && (
+                              <div className="mt-4">
+                                <h4 className="text-xs font-semibold text-white/80 mb-2">Room Amenities</h4>
+                                <div className="flex flex-wrap gap-1.5">
+                                  {rt.amenities.map((amenity, idx) => (
+                                    <div
+                                      key={idx}
+                                      className="flex items-center gap-1 rounded-lg border border-primary/10 bg-primary/5 px-2 py-1"
+                                    >
+                                      <Check className="h-3 w-3 text-primary shrink-0" />
+                                      <span className="text-[10px] text-muted-foreground">{amenity}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            <div className="mt-4 flex items-center gap-2">
+                              <Button
+                                type="button"
+                                size="sm"
+                                onClick={() => {
+                                  setSelectedRoomType(rt.name)
+                                  handleWhatsApp()
+                                }}
+                                className="rounded-full bg-primary hover:bg-primary/90 text-xs"
+                              >
+                                Book Now
+                              </Button>
+                            </div>
                           </div>
                         </div>
                       </div>
