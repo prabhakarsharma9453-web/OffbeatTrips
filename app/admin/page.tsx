@@ -17,6 +17,7 @@ import DestinationForm from "@/components/admin/destination-form"
 import DestinationTripsForm from "@/components/admin/destination-trips-form"
 import TestimonialsForm from "@/components/admin/testimonials-form"
 import StoriesForm from "@/components/admin/stories-form"
+import SessionTimeout from "@/components/session-timeout"
 
 export default function AdminDashboard() {
   const { data: session, status } = useSession()
@@ -45,6 +46,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-background overflow-x-hidden w-full">
+      <SessionTimeout />
       <Navbar />
       <div className="pt-20 md:pt-32 pb-6 md:pb-16 px-4 sm:px-6 md:px-8 w-full max-w-full overflow-x-hidden">
         <div className="max-w-7xl mx-auto w-full">

@@ -7,6 +7,7 @@ import { AuthSessionProvider } from "@/components/providers/session-provider"
 import GlobalLoader from "@/components/global-loader"
 import PageLoader from "@/components/page-loader"
 import WhatsAppWidget from "@/components/whatsapp-widget"
+import SessionTimeout from "@/components/session-timeout"
 import { Toaster } from "@/components/ui/toaster"
 import "./globals.css"
 
@@ -38,6 +39,7 @@ export default function RootLayout({
         <GlobalLoader />
         <PageLoader />
         <AuthSessionProvider>
+          <SessionTimeout />
           {children}
           <Toaster />
           <WhatsAppWidget phoneNumber="918588855935" messageInterval={9000} />

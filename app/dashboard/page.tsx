@@ -23,6 +23,7 @@ import { Input } from "@/components/ui/input"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { useToast } from "@/hooks/use-toast"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import SessionTimeout from "@/components/session-timeout"
 
 interface UserProfile {
   id: string
@@ -245,6 +246,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-background/90 py-8 px-4 sm:px-6 lg:px-8">
+      <SessionTimeout />
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <motion.div
