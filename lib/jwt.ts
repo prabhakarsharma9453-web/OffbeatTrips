@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken'
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this-in-production'
+const JWT_SECRET = process.env.JWT_SECRET || '9fA3xLQmT8KJH2E4yN7ZVwD5C6P0bUoR1sMeXcWQFzBIdYAgRrJHk7N5n2t8pV3L'
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '1h' // 1 hour session timeout
 
 export interface JWTPayload {
