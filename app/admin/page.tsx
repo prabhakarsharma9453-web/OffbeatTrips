@@ -61,7 +61,17 @@ export default function AdminDashboard() {
               </Link>
               <Button
                 variant="outline"
-                onClick={() => signOut({ callbackUrl: "/" })}
+                onClick={async () => {
+                  try {
+                    await signOut({ 
+                      callbackUrl: "/",
+                      redirect: true 
+                    })
+                  } catch (error) {
+                    // Fallback: redirect manually if signOut fails
+                    router.push("/")
+                  }
+                }}
                 className="hover:bg-destructive hover:text-destructive-foreground border-destructive/30 text-destructive text-sm md:text-base h-9 md:h-10"
               >
                 <LogOut className="w-4 h-4 md:w-4 md:h-4 mr-2" />

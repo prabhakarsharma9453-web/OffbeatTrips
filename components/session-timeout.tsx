@@ -76,10 +76,15 @@ export default function SessionTimeout() {
           variant: "destructive",
         })
 
-        // Sign out and redirect to login
+        // Sign out and redirect to home page
         signOut({ 
-          callbackUrl: "/login",
+          callbackUrl: "/",
           redirect: true 
+        }).catch(() => {
+          // Fallback: redirect manually if signOut fails
+          if (typeof window !== "undefined") {
+            window.location.href = "/"
+          }
         })
       }
     }
@@ -114,8 +119,13 @@ export default function SessionTimeout() {
           })
 
           signOut({ 
-            callbackUrl: "/login",
+            callbackUrl: "/",
             redirect: true 
+          }).catch(() => {
+            // Fallback: redirect manually if signOut fails
+            if (typeof window !== "undefined") {
+              window.location.href = "/"
+            }
           })
         } else {
           // Update activity when user returns to tab
