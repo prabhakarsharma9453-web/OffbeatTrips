@@ -74,7 +74,7 @@ export default function WhatsAppWidget({
   }
 
   return (
-    <div className="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-50 flex flex-col md:flex-row items-end md:items-center gap-2 md:gap-3">
+    <div className="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-40 flex flex-col md:flex-row items-end md:items-center gap-2 md:gap-3">
       {/* Tooltip Message */}
       {isVisible && (
         <div

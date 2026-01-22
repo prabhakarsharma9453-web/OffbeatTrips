@@ -135,21 +135,21 @@ export default function HeroSection() {
               </p> */}
             </div>
 
-            {/* <div className={`${isVisible ? "animate-fade-in-left delay-200" : "opacity-0"}`}>
+            <div className={`${isVisible ? "animate-fade-in-left delay-200" : "opacity-0"}`}>
               <Link href="/activities/hiking">
                 <Button size="lg" className="bg-white text-background hover:bg-white/90 gap-2 group px-6">
                   <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                   View all hiking activities
                 </Button>
               </Link>
-            </div> */}
+            </div>
 
             
           </div>
 
           {/* Right Column */}
-          {/* <div className="space-y-4 sm:space-y-6 lg:space-y-8">
-            Adventure Mood comment
+          <div className="space-y-4 sm:space-y-6 lg:space-y-8">
+            {/* Adventure Mood comment */}
             <div className={`${isVisible ? "animate-fade-in-right delay-100" : "opacity-0"}`}>
               <h3 className="text-white font-semibold mb-3 sm:mb-4">Start Your Journey</h3>
               <div className="flex flex-wrap gap-2 sm:gap-3">
@@ -169,7 +169,7 @@ export default function HeroSection() {
               </div>
             </div>
 
-            Featured Cards comment
+            {/* Featured Cards comment */}
             <div className={`${isVisible ? "animate-fade-in-right delay-300" : "opacity-0"}`}>
               <div className="flex gap-4 overflow-hidden">
                 {featuredTrips.slice(currentSlide, currentSlide + 2).map((trip, index) => (
@@ -217,7 +217,7 @@ export default function HeroSection() {
                 </div>
               </div>
             </div>
-          </div> */}
+          </div>
           
         </div>
         
