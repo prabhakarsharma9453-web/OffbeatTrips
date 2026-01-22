@@ -75,7 +75,8 @@ export async function GET(request: Request) {
 
       // Use stored type, fallback to inference if not set
       let type = resort.type || 'domestic'
-      const location = resort.addressTile || resort.shortDescription || ''
+      // Use name field for location (first field in resort form where user puts location)
+      const location = resort.name || resort.addressTile || resort.shortDescription || ''
       if (!resort.type) {
         const domesticKeywords = ['india', 'indian', 'goa', 'kerala', 'rajasthan', 'himachal', 'uttarakhand', 'ladakh']
         type = domesticKeywords.some(keyword => location.toLowerCase().includes(keyword))
@@ -108,6 +109,7 @@ export async function GET(request: Request) {
         id: resort._id?.toString(),
         title: resort.resortsName || resort.name || 'Unnamed Resort',
         location: location.split(',')[0] || 'Unknown Location',
+        name: resort.name || '', // Include name field for filtering
         price: formattedPrice,
         rating: 4.5,
         image: mainImage,
@@ -120,11 +122,19 @@ export async function GET(request: Request) {
 
     let filteredResorts = transformedResorts
 
-    // Filter by location if specified
+    // Filter by location if specified - use name field for matching
     if (locationFilter && locationFilter !== 'All Locations') {
-      filteredResorts = filteredResorts.filter((resort) =>
-        resort.location.toLowerCase().includes(locationFilter.toLowerCase())
-      )
+      const locationLower = locationFilter.toLowerCase()
+      filteredResorts = filteredResorts.filter((resort) => {
+        const resortNameLower = (resort.name || '').toLowerCase()
+        const resortLocationLower = (resort.location || '').toLowerCase()
+        return (
+          resortNameLower.includes(locationLower) ||
+          resortLocationLower.includes(locationLower) ||
+          locationLower.includes(resortNameLower) ||
+          locationLower.includes(resortLocationLower)
+        )
+      })
     }
 
     // Type filtering is already done at database level, but ensure type matches

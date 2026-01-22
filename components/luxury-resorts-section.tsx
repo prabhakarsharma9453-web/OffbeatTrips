@@ -192,7 +192,7 @@ export default function LuxuryResortsSection() {
               size="sm"
               className="bg-primary hover:bg-primary/90 text-white rounded-full px-4 sm:px-5 py-1.5 sm:py-2 text-xs sm:text-sm transition-all duration-300 hover:scale-105"
             >
-              Explore
+              Book Now
             </Button>
           </Link>
         </div>

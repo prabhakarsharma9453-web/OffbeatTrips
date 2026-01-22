@@ -9,6 +9,7 @@ export async function GET(request: Request) {
 
     const { searchParams } = new URL(request.url)
     const typeFilter = searchParams.get('type')
+    const locationFilter = searchParams.get('location')
 
     // Build query - filter by type if specified
     const query: any = {}
@@ -48,6 +49,21 @@ export async function GET(request: Request) {
     let filteredPackages = transformedPackages
     if (typeFilter) {
       filteredPackages = filteredPackages.filter((pkg) => pkg.type === typeFilter)
+    }
+
+    // Filter by location if specified
+    if (locationFilter && locationFilter !== 'All Locations') {
+      const locationLower = locationFilter.toLowerCase()
+      filteredPackages = filteredPackages.filter((pkg) => {
+        const pkgLocationLower = (pkg.location || '').toLowerCase()
+        const pkgCountryLower = (pkg.country || '').toLowerCase()
+        return (
+          pkgLocationLower.includes(locationLower) ||
+          pkgCountryLower.includes(locationLower) ||
+          locationLower.includes(pkgLocationLower) ||
+          locationLower.includes(pkgCountryLower)
+        )
+      })
     }
 
     return NextResponse.json({ success: true, data: filteredPackages })

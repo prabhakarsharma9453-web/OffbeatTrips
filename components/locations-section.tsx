@@ -128,7 +128,7 @@ export default function LocationsSection() {
               {dataToRender.map((location, index) => (
                 <CarouselItem key={location.id} className="pl-2 basis-full">
                   <Link
-                    href={`/trips/${location.slug}`}
+                    href={`/destinations/${location.slug}`}
                     className={`group relative rounded-2xl overflow-hidden cursor-pointer block ${
                       isVisible ? "animate-fade-in-up" : "opacity-0"
                     }`}
@@ -165,7 +165,7 @@ export default function LocationsSection() {
           {dataToRender.map((location, index) => (
             <Link
               key={location.id}
-              href={`/trips/${location.slug}`}
+              href={`/destinations/${location.slug}`}
               className={`group relative rounded-2xl overflow-hidden cursor-pointer block ${
                 index === 0 || index === 3 ? "md:row-span-2" : ""
               } ${isVisible ? "animate-fade-in-up" : "opacity-0"}`}
