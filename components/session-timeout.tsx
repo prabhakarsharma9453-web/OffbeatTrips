@@ -77,13 +77,22 @@ export default function SessionTimeout() {
         })
 
         // Sign out and redirect to home page
+        // Use redirect: false and manual redirect for better mobile compatibility
         signOut({ 
-          callbackUrl: "/",
-          redirect: true 
-        }).catch(() => {
-          // Fallback: redirect manually if signOut fails
+          redirect: false 
+        }).then(() => {
+          // Manually redirect to home page (works better on mobile)
           if (typeof window !== "undefined") {
             window.location.href = "/"
+          } else {
+            router.push("/")
+          }
+        }).catch(() => {
+          // Fallback: force redirect to home page
+          if (typeof window !== "undefined") {
+            window.location.href = "/"
+          } else {
+            router.push("/")
           }
         })
       }
@@ -118,13 +127,22 @@ export default function SessionTimeout() {
             variant: "destructive",
           })
 
+          // Use redirect: false and manual redirect for better mobile compatibility
           signOut({ 
-            callbackUrl: "/",
-            redirect: true 
-          }).catch(() => {
-            // Fallback: redirect manually if signOut fails
+            redirect: false 
+          }).then(() => {
+            // Manually redirect to home page (works better on mobile)
             if (typeof window !== "undefined") {
               window.location.href = "/"
+            } else {
+              router.push("/")
+            }
+          }).catch(() => {
+            // Fallback: force redirect to home page
+            if (typeof window !== "undefined") {
+              window.location.href = "/"
+            } else {
+              router.push("/")
             }
           })
         } else {

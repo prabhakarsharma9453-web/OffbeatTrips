@@ -63,13 +63,24 @@ export default function AdminDashboard() {
                 variant="outline"
                 onClick={async () => {
                   try {
+                    // Sign out without redirect first
                     await signOut({ 
-                      callbackUrl: "/",
-                      redirect: true 
+                      redirect: false 
                     })
+                    // Then manually redirect to home page (works better on mobile)
+                    if (typeof window !== "undefined") {
+                      window.location.href = "/"
+                    } else {
+                      router.push("/")
+                    }
                   } catch (error) {
-                    // Fallback: redirect manually if signOut fails
-                    router.push("/")
+                    console.error("Logout error:", error)
+                    // Fallback: force redirect to home page
+                    if (typeof window !== "undefined") {
+                      window.location.href = "/"
+                    } else {
+                      router.push("/")
+                    }
                   }
                 }}
                 className="hover:bg-destructive hover:text-destructive-foreground border-destructive/30 text-destructive text-sm md:text-base h-9 md:h-10"
