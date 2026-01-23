@@ -17,7 +17,22 @@ export async function GET(request: Request) {
       query.type = typeFilter
     }
 
-    const packages = await Package.find(query).sort({ order: 1, createdAt: -1 }).lean()
+    // Fetch all packages first (Cosmos DB doesn't support composite sort without indexes)
+    let packages = await Package.find(query).lean()
+    
+    // Sort in memory
+    packages.sort((a: any, b: any) => {
+      // First by order field
+      const orderA = a.order || 0
+      const orderB = b.order || 0
+      if (orderA !== orderB) {
+        return orderA - orderB
+      }
+      // Then by createdAt (newest first)
+      const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0
+      const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0
+      return dateB - dateA
+    })
 
     const transformedPackages = packages.map((pkg) => {
       // Get main image - prefer first image from images array, fallback to image field

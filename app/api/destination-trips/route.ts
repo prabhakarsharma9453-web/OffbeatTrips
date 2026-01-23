@@ -24,7 +24,18 @@ export async function GET(request: Request) {
       filter.$or = [{ title: regex }, { location: regex }, { mood: regex }, { highlights: { $in: [regex] } }]
     }
 
-    const items = await DestinationTrip.find(filter).sort({ order: 1, createdAt: -1 }).lean()
+    // Fetch all items (Cosmos DB doesn't support composite sort without indexes)
+    let items = await DestinationTrip.find(filter).lean()
+    
+    // Sort in memory
+    items.sort((a: any, b: any) => {
+      const orderA = a.order || 0
+      const orderB = b.order || 0
+      if (orderA !== orderB) return orderA - orderB
+      const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0
+      const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0
+      return dateB - dateA
+    })
 
     const data = items.map((t: any) => ({
       id: t._id?.toString(),

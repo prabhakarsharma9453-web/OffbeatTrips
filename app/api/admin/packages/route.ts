@@ -77,7 +77,18 @@ export async function GET() {
 
     await connectDB()
 
-    const packages = await Package.find().sort({ order: 1, createdAt: -1 }).lean()
+    // Fetch all packages (Cosmos DB doesn't support composite sort without indexes)
+    let packages = await Package.find().lean()
+    
+    // Sort in memory
+    packages.sort((a: any, b: any) => {
+      const orderA = a.order || 0
+      const orderB = b.order || 0
+      if (orderA !== orderB) return orderA - orderB
+      const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0
+      const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0
+      return dateB - dateA
+    })
 
     const transformedPackages = packages.map((pkg) => ({
       ID: pkg._id?.toString(),

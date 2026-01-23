@@ -1,11 +1,9 @@
 import { NextResponse } from 'next/server'
 import { NextRequest } from 'next/server'
-import { writeFile, mkdir } from 'fs/promises'
-import { join } from 'path'
-import { existsSync } from 'fs'
 import { auth } from '@/auth'
+import { uploadToBlobStorage, isBlobStorageConfigured } from '@/lib/azure-blob'
 
-// POST - Upload image file (for users)
+// POST - Upload image file (for users) to Azure Blob Storage
 export async function POST(request: NextRequest) {
   try {
     const session = await auth()
@@ -14,6 +12,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized' },
         { status: 401 }
+      )
+    }
+
+    // Check if Azure Blob Storage is configured
+    if (!isBlobStorageConfigured()) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Azure Blob Storage is not configured. Please set AZURE_STORAGE_CONNECTION_STRING environment variable.' 
+        },
+        { status: 500 }
       )
     }
 
@@ -44,31 +53,14 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Create uploads directory if it doesn't exist
-    const uploadsDir = join(process.cwd(), 'public', 'uploads', 'profiles')
-    if (!existsSync(uploadsDir)) {
-      await mkdir(uploadsDir, { recursive: true })
-    }
-
-    // Generate unique filename
-    const timestamp = Date.now()
-    const randomString = Math.random().toString(36).substring(2, 15)
-    const fileExtension = file.name.split('.').pop()
-    const fileName = `${session.user.id}-${timestamp}-${randomString}.${fileExtension}`
-    const filePath = join(uploadsDir, fileName)
-
-    // Convert file to buffer and save
-    const bytes = await file.arrayBuffer()
-    const buffer = Buffer.from(bytes)
-    await writeFile(filePath, buffer)
-
-    // Return the public URL path
-    const publicPath = `/uploads/profiles/${fileName}`
+    // Upload to Azure Blob Storage
+    const blobUrl = await uploadToBlobStorage(file, 'profiles')
 
     return NextResponse.json({
       success: true,
-      path: publicPath,
-      message: 'File uploaded successfully',
+      path: blobUrl,
+      url: blobUrl,
+      message: 'File uploaded successfully to Azure Blob Storage',
     })
   } catch (error) {
     console.error('Error uploading file:', error)

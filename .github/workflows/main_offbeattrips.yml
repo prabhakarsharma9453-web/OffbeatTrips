@@ -36,7 +36,7 @@ jobs:
           path: .
 
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     needs: build
     
     steps:
@@ -45,7 +45,37 @@ jobs:
         with:
           name: node-app
       
-      - name: 'Deploy to Azure Web App'
+      - name: Install Azure PowerShell
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            Write-Host "Azure PowerShell is now available"
+            Get-Module -ListAvailable Az.* | Select-Object Name, Version
+          azPSVersion: "latest"
+      
+      - name: 'Login to Azure'
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
+      - name: 'Deploy to Azure Web App using PowerShell'
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            $appName = 'OffbeatTrips'
+            $resourceGroup = 'your-resource-group-name'  # Update this
+            $packagePath = '.'
+            
+            Write-Host "Deploying to Azure Web App: $appName"
+            
+            # Deploy using Azure PowerShell
+            Publish-AzWebApp -ResourceGroupName $resourceGroup -Name $appName -ArchivePath $packagePath
+            
+            Write-Host "Deployment completed successfully"
+          azPSVersion: "latest"
+      
+      # Alternative: Keep the original deployment method as fallback
+      - name: 'Deploy to Azure Web App (Alternative)'
         uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
         with:

@@ -38,7 +38,18 @@ export async function GET(request: NextRequest) {
     if (authResult instanceof NextResponse) return authResult
 
     await connectDB()
-    const items = await Destination.find().sort({ order: 1, createdAt: -1 }).lean()
+    // Fetch all destinations (Cosmos DB doesn't support composite sort without indexes)
+    let items = await Destination.find().lean()
+    
+    // Sort in memory
+    items.sort((a: any, b: any) => {
+      const orderA = a.order || 0
+      const orderB = b.order || 0
+      if (orderA !== orderB) return orderA - orderB
+      const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0
+      const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0
+      return dateB - dateA
+    })
 
     const slugs = items.map((d: any) => d.slug).filter(Boolean)
     let countsBySlug = new Map<string, number>()

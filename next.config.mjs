@@ -5,6 +5,16 @@ const nextConfig = {
   },
   images: {
     unoptimized: true,
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '*.blob.core.windows.net',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.azureedge.net',
+      },
+    ],
   },
   // Next.js 16: serverComponentsExternalPackages moved to top-level
   // Only include packages that are actually used in API routes (not middleware)

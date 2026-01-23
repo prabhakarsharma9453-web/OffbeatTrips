@@ -19,10 +19,34 @@ export async function GET(request: Request) {
       filter.$text = { $search: q }
     }
 
-    const items = await Story.find(filter)
-      .sort(q ? { score: { $meta: 'textScore' }, createdAt: -1 } : { createdAt: -1 })
-      .limit(limit)
-      .lean()
+    // Fetch stories (Cosmos DB doesn't support text search sort without indexes)
+    let items = await Story.find(filter).lean()
+    
+    // Sort in memory
+    if (q) {
+      // For text search, sort by relevance score first, then by date
+      items.sort((a: any, b: any) => {
+        const scoreA = a.score || 0
+        const scoreB = b.score || 0
+        if (scoreA !== scoreB) {
+          return scoreB - scoreA // Higher score first
+        }
+        // Then by createdAt (newest first)
+        const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0
+        const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0
+        return dateB - dateA
+      })
+    } else {
+      // Sort by createdAt (newest first)
+      items.sort((a: any, b: any) => {
+        const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0
+        const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0
+        return dateB - dateA
+      })
+    }
+    
+    // Apply limit after sorting
+    items = items.slice(0, limit)
 
     const data = items.map((s: any) => ({
       id: s._id?.toString(),

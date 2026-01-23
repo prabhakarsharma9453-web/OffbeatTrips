@@ -38,7 +38,22 @@ export async function GET(request: Request) {
       query.type = typeFilter
     }
 
-    let resorts = await Resort.find(query).sort({ order: 1, createdAt: -1 }).lean()
+    // Fetch all resorts first (Cosmos DB doesn't support composite sort without indexes)
+    let resorts = await Resort.find(query).lean()
+    
+    // Sort in memory
+    resorts.sort((a: any, b: any) => {
+      // First by order field
+      const orderA = a.order || 0
+      const orderB = b.order || 0
+      if (orderA !== orderB) {
+        return orderA - orderB
+      }
+      // Then by createdAt (newest first)
+      const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0
+      const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0
+      return dateB - dateA
+    })
 
     const transformedResorts = resorts.map((resort) => {
       const amenities: string[] = []

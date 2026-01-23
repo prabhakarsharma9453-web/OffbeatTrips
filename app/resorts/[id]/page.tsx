@@ -306,6 +306,11 @@ export default function ResortDetailsPage() {
                       fill
                       className="object-cover transition-opacity duration-500"
                       priority={selectedImageIndex === 0}
+                      unoptimized
+                      onError={(e) => {
+                        console.error('Image failed to load:', galleryImages[selectedImageIndex])
+                        ;(e.target as HTMLImageElement).src = "/placeholder.svg"
+                      }}
                     />
                     
                     {/* Navigation Arrows */}
@@ -353,6 +358,11 @@ export default function ResortDetailsPage() {
                           alt={`Thumbnail ${index + 1}`}
                           fill
                           className="object-cover"
+                          unoptimized
+                          onError={(e) => {
+                            console.error('Thumbnail failed to load:', src)
+                            ;(e.target as HTMLImageElement).src = "/placeholder.svg"
+                          }}
                         />
                         {selectedImageIndex === index && (
                           <div className="absolute inset-0 bg-primary/20 ring-2 ring-primary/50" />

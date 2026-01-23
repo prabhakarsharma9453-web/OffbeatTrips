@@ -16,7 +16,22 @@ export async function GET(request: Request) {
     const filter: any = {}
     if (isPopular !== undefined) filter.isPopular = isPopular
 
-    const items = await Destination.find(filter).sort({ order: 1, createdAt: -1 }).lean()
+    // Fetch all destinations first (Cosmos DB doesn't support composite sort without indexes)
+    let items = await Destination.find(filter).lean()
+    
+    // Sort in memory
+    items.sort((a: any, b: any) => {
+      // First by order field
+      const orderA = a.order || 0
+      const orderB = b.order || 0
+      if (orderA !== orderB) {
+        return orderA - orderB
+      }
+      // Then by createdAt (newest first)
+      const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0
+      const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0
+      return dateB - dateA
+    })
 
     // If we have destination trips, prefer showing the real count
     const slugs = items.map((d: any) => d.slug).filter(Boolean)

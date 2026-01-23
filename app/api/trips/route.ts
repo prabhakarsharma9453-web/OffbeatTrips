@@ -29,10 +29,21 @@ export async function GET(request: Request) {
       ]
     }
 
-    const trips = await Trip.find(filter)
-      .sort({ order: 1, createdAt: -1 })
-      .limit(limit)
-      .lean()
+    // Fetch all trips (Cosmos DB doesn't support composite sort without indexes)
+    let trips = await Trip.find(filter).lean()
+    
+    // Sort in memory
+    trips.sort((a: any, b: any) => {
+      const orderA = a.order || 0
+      const orderB = b.order || 0
+      if (orderA !== orderB) return orderA - orderB
+      const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0
+      const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0
+      return dateB - dateA
+    })
+    
+    // Apply limit after sorting
+    trips = trips.slice(0, limit)
 
     const data = trips.map((t: any) => {
       const images =

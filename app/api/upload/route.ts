@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server'
 import { NextRequest } from 'next/server'
 import { requireAdmin } from '@/lib/auth-middleware'
-import { uploadToCloudinary } from '@/lib/cloudinary'
+import { uploadToBlobStorage, isBlobStorageConfigured } from '@/lib/azure-blob'
 
-// POST - Upload image file to Cloudinary
+// POST - Upload image file to Azure Blob Storage
 export async function POST(request: NextRequest) {
   try {
     const authResult = await requireAdmin(request)
@@ -12,14 +12,12 @@ export async function POST(request: NextRequest) {
       return authResult
     }
 
-    // Check if Cloudinary is configured
-    if (!process.env.CLOUDINARY_CLOUD_NAME || 
-        !process.env.CLOUDINARY_API_KEY || 
-        !process.env.CLOUDINARY_API_SECRET) {
+    // Check if Azure Blob Storage is configured
+    if (!isBlobStorageConfigured()) {
       return NextResponse.json(
         { 
           success: false, 
-          error: 'Cloudinary is not configured. Please set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET environment variables.' 
+          error: 'Azure Blob Storage is not configured. Please set AZURE_STORAGE_CONNECTION_STRING environment variable.' 
         },
         { status: 500 }
       )
@@ -43,7 +41,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Validate file size (max 10MB for Cloudinary)
+    // Validate file size (max 10MB)
     const maxSize = 10 * 1024 * 1024 // 10MB
     if (file.size > maxSize) {
       return NextResponse.json(
@@ -52,22 +50,22 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Upload to Cloudinary
-    const secureUrl = await uploadToCloudinary(file, 'travel-website')
+    // Upload to Azure Blob Storage
+    const blobUrl = await uploadToBlobStorage(file, 'images')
 
-    // Return the secure URL
+    // Return the blob URL
     return NextResponse.json({
       success: true,
-      path: secureUrl, // Return Cloudinary URL as path for backward compatibility
-      url: secureUrl, // Also return as url for clarity
-      message: 'File uploaded successfully to Cloudinary',
+      path: blobUrl, // Return blob URL as path for backward compatibility
+      url: blobUrl, // Also return as url for clarity
+      message: 'File uploaded successfully to Azure Blob Storage',
     })
   } catch (error) {
-    console.error('Error uploading file to Cloudinary:', error)
+    console.error('Error uploading file to Azure Blob Storage:', error)
     return NextResponse.json(
       {
         success: false,
-        error: error instanceof Error ? error.message : 'Failed to upload file to Cloudinary',
+        error: error instanceof Error ? error.message : 'Failed to upload file to Azure Blob Storage',
       },
       { status: 500 }
     )
