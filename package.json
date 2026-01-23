@@ -5,9 +5,10 @@
   "scripts": {
     "build": "next build",
     "dev": "next dev --webpack",
+    "start": "next start -p 8080",
     "dev:turbo": "next dev",
     "lint": "eslint .",
-    "start": "next start",
+    // "start": "next start",
     "test:cosmos": "node scripts/test-cosmos-connection.js"
   },
   "dependencies": {
