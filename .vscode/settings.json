@@ -2,5 +2,7 @@
     "appService.zipIgnorePattern": [
         "node_modules{,/**}",
         ".vscode{,/**}"
-    ]
+    ],
+    "appService.defaultWebAppToDeploy": "/subscriptions/1fa5c419-df7c-4b2b-b196-68d5941d551d/resourceGroups/offbeattrips-web/providers/Microsoft.Web/sites/offbeattrips-website",
+    "appService.deploySubpath": "."
 }

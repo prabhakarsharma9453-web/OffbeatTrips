@@ -1,14 +1,13 @@
 {
-  "name": "my-v0-project",
+  "name": "OffbeatTrips",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "build": "next build",
     "dev": "next dev --webpack",
-    "start": "next start -p 8080",
+    "start": "next start -p $PORT",
     "dev:turbo": "next dev",
     "lint": "eslint .",
-    // "start": "next start",
     "test:cosmos": "node scripts/test-cosmos-connection.js"
   },
   "dependencies": {
