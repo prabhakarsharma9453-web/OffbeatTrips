@@ -17,19 +17,26 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
-          cache: 'npm'
+          node-version: "20.x"
+          cache: "npm"
 
       - name: Install dependencies
         run: npm install
 
       - name: Build Next.js app
         run: npm run build
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          AZURE_COSMOS_DB_CONNECTION_STRING: ${{ secrets.AZURE_COSMOS_DB_CONNECTION_STRING }}
 
       - name: Prepare deployment package
         run: |
-          mkdir deploy
-          cp -r .next public package.json package-lock.json next.config.* deploy/ || true
+          mkdir -p deploy
+          cp -r .next deploy/
+          cp -r public deploy/ || true
+          cp package.json deploy/
+          cp package-lock.json deploy/ || true
+          cp next.config.* deploy/ || true
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
